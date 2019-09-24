@@ -14,10 +14,6 @@ server.use(helmet());
 server.use(express.json());
 server.use(cors());
 
-server.get('/', (req, res) => {
-  res.send('Test');
-});
-
 // server.use('/api/auth', authRouter);
 // server.use('/api/feeds', feedsRouter);
 // server.use('/api/notifications', notificationsRouter);
