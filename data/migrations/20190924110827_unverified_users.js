@@ -7,7 +7,7 @@ exports.up = function(knex) {
       .unique();
     tbl.string('full_name', 128).notNullable();
     tbl.string('username', 128).notNullable();
-
+    tbl.string('token', 128).notNullable();
     tbl.string('password', 128).notNullable();
     tbl
       .timestamp('created_at', {
