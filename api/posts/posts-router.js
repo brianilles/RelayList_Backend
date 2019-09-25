@@ -4,9 +4,68 @@ const Users = require('../users/users-model.js');
 
 const restrictedByAuthorization = require('../auth/restricted-by-authorization-middleware.js');
 
-// router.get('/:post_id', (req, res) => {});
+router.get('/:post_id', async (req, res) => {
+  const { post_id } = req.params;
 
-// router.get('/post-preview/:post_id', (req, res) => {});
+  try {
+    if (!post_id) {
+      res.status(422).end();
+    } else {
+      const post = await Posts.findBy({ id: post_id });
+      if (!post) {
+        res.status(404).end();
+      } else {
+        const creator = await Users.publicTwoFindBy({
+          id: post.user_id
+        });
+        if (!creator) {
+          res.status(404).end();
+        } else {
+          post.content = JSON.parse(post.content);
+          const postData = {
+            post,
+            creator
+          };
+          res.status(200).json(postData);
+        }
+      }
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'An unknown error occurred.' });
+  }
+});
+
+router.get('/post-preview/:post_id', async (req, res) => {
+  const { post_id } = req.params;
+
+  try {
+    if (!post_id) {
+      res.status(422).end();
+    } else {
+      const post = await Posts.findPreviewBy({ id: post_id });
+      if (!post) {
+        res.status(404).end();
+      } else {
+        const creator = await Users.publicTwoFindBy({
+          id: post.user_id
+        });
+        if (!creator) {
+          res.status(404).end();
+        } else {
+          const postData = {
+            post,
+            creator
+          };
+          res.status(200).json(postData);
+        }
+      }
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'An unknown error occurred.' });
+  }
+});
 
 router.post('/:id', restrictedByAuthorization, async (req, res) => {
   const user_id = req.params.id;

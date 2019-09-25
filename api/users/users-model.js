@@ -8,7 +8,8 @@ module.exports = {
   updateBio,
   remove,
   updateImg,
-  updatePassword
+  updatePassword,
+  publicTwoFindBy
 };
 
 function add(user) {
@@ -40,6 +41,13 @@ function secureFindBy(filter) {
 function publicFindBy(filter) {
   return db('users')
     .select('id', 'full_name', 'username', 'bio', 'profile_image', 'created_at')
+    .where(filter)
+    .first();
+}
+
+function publicTwoFindBy(filter) {
+  return db('users')
+    .select('full_name', 'username', 'bio', 'profile_image', 'created_at')
     .where(filter)
     .first();
 }
