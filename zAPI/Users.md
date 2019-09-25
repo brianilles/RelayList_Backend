@@ -2,14 +2,15 @@
 
 ## Endpoints
 
-| HTTP METHOD | Endpoint                           | Description                    |
-| ----------- | ---------------------------------- | ------------------------------ |
-| GET         | /api/users/public/:id              | Retrieves a users public info  |
-| GET         | /api/users/private/:id             | Retrieves a users private info |
-| PUT         | /api/users/bio/:id                 | Updates bio                    |
-| DELETE      | /api/users/:id                     | Deletes a user                 |
-| POST        | /api/users/profile-image/:id       | Adds user's profile image      |
-| GET         | /api/user/profile-images/:filepath | Gets user's profile image      |
+| HTTP METHOD | Endpoint                            | Description                    |
+| ----------- | ----------------------------------- | ------------------------------ |
+| GET         | /api/users/public/:id               | Retrieves a users public info  |
+| GET         | /api/users/private/:id              | Retrieves a users private info |
+| PUT         | /api/users/bio/:id                  | Updates bio                    |
+| DELETE      | /api/users/:id                      | Deletes a user                 |
+| POST        | /api/users/profile-image/:id        | Adds user's profile image      |
+| GET         | /api/users/profile-images/:filepath | Gets user's profile image      |
+| DELETE      | /api/users/profile-image/:id        | Deletes a user's profile image |
 
 #### GET `/api/users/public/:id`
 
@@ -104,3 +105,12 @@ Send image in form-data with key profile-image
 #### GET `/api/users/profile-image/:filepath`
 
 returns image
+
+#### DELETE `/api/users/profile-image/:id`
+
+Requires user cookie that owns resource
+Response:
+
+204 no content
+
+---

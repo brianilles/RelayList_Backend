@@ -79,6 +79,7 @@ router.post(
     const { id } = req.params;
     try {
       const userBefore = await Users.secureFindBy({ id });
+
       const path = userBefore.profile_image;
       const addedImage = await Users.updateImg({
         id,
@@ -111,6 +112,41 @@ router.post(
 router.use('/profile-images', express.static('profile-images')); // TODO change 404 from default
 
 // [OWNERSHIP REQUIRED] Deletes a user's profile image
+router.delete(
+  '/profile-image/:id',
+  restrictedByAuthorization,
+  async (req, res) => {
+    const { id } = req.params;
+    try {
+      const userBefore = await Users.secureFindBy({ id });
+      if (!userBefore.profile_image) {
+        res.status(405).end();
+      } else {
+        const path = userBefore.profile_image;
+        const deletedImage = await Users.updateImg({
+          id,
+          profile_image: null
+        });
+        fs.unlink(path, error => {
+          if (error) {
+            console.error(error);
+          }
+        });
+        if (deletedImage) {
+          res.status(204).end();
+        } else {
+          res
+            .status(500)
+            .json({ message: 'An error occurred when deleting the image.' });
+        }
+      }
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'An unknown error occurred.' });
+    }
+  }
+);
+
 // Sends email to user to reset password
 // Confirms or denies password reset verification for the user
 
