@@ -106,6 +106,30 @@ router.post('/:id', restrictedByAuthorization, async (req, res) => {
   }
 });
 
-// router.delete('/:user_id/post_id', (req, res) => {});
+router.delete('/:id/:post_id', restrictedByAuthorization, async (req, res) => {
+  const { post_id } = req.params;
+  if (!post_id) {
+    res.status(422).end();
+  } else {
+    try {
+      const post = await Posts.secureFindBy({ id: post_id });
+      if (!post) {
+        res.status(404).end();
+      } else {
+        const deletedPost = await Posts.remove({ id: post.id });
+        if (deletedPost) {
+          res.status(204).end();
+        } else {
+          res
+            .status(500)
+            .json({ message: 'There was an error deleting the post.' });
+        }
+      }
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'An unknown error occurred.' });
+    }
+  }
+});
 
 module.exports = router;

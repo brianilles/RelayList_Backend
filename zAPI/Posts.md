@@ -7,6 +7,7 @@
 | POST        | /api/posts/:id                   | Adds a user's post    |
 | GET         | /api/posts/post-preview/:post_id | Gets a post's preview |
 | GET         | /api/posts/:post_id              | Gets a post           |
+| DELETE      | /api/posts/:id/:post_id          | Deletes user's post   |
 
 ### Endpoint examples
 
@@ -109,3 +110,14 @@ Response:
   }
 }
 ```
+
+---
+
+#### DELETE `/api/posts/:id/:postid`
+
+Requires user cookie that owns resource
+Response:
+
+204 no content
+
+---
