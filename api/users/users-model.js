@@ -6,7 +6,8 @@ module.exports = {
   secureFindBy,
   publicFindBy,
   updateBio,
-  remove
+  remove,
+  updateImg
 };
 
 function add(user) {
@@ -52,4 +53,10 @@ function remove(filter) {
   return db('users')
     .where(filter)
     .del();
+}
+
+function updateImg({ id, profile_image }) {
+  return db('users')
+    .where({ id })
+    .update({ profile_image });
 }

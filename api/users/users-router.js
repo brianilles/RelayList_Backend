@@ -1,6 +1,9 @@
+const express = require('express');
 const router = require('express').Router();
 const Users = require('./users-model.js');
 const restrictedByAuthorization = require('../auth/restricted-by-authorization-middleware.js');
+const uploadImage = require('./image-uploads.js');
+const fs = require('fs');
 
 // Gets user's public information
 router.get('/public/:id', async (req, res) => {
@@ -68,6 +71,45 @@ router.put('/bio/:id', restrictedByAuthorization, async (req, res) => {
 });
 
 // [OWNERSHIP REQUIRED] Edits a user's profile image
+router.post(
+  '/profile-image/:id',
+  restrictedByAuthorization,
+  uploadImage.upload().single('profile-image'),
+  async (req, res) => {
+    const { id } = req.params;
+    try {
+      const userBefore = await Users.secureFindBy({ id });
+      const path = userBefore.profile_image;
+      const addedImage = await Users.updateImg({
+        id,
+        profile_image: req.file.path
+      });
+
+      if (addedImage) {
+        if (path) {
+          fs.unlink(path, error => {
+            if (error) {
+              console.error(error);
+            }
+          });
+        }
+        const user = await Users.secureFindBy({ id });
+        res.status(201).json(user);
+      } else {
+        res.status(500).json({
+          message: 'There was an error when adding the profile image.'
+        });
+      }
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'An unknown error occurred.' });
+    }
+  }
+);
+
+// Gets a profile image
+router.use('/profile-images', express.static('profile-images')); // TODO change 404 from default
+
 // [OWNERSHIP REQUIRED] Deletes a user's profile image
 // Sends email to user to reset password
 // Confirms or denies password reset verification for the user
