@@ -87,7 +87,7 @@ router.get('/send-verification/:id', async (req, res) => {
   }
 });
 
-// confirms or denies verification for the user
+// Confirms or denies verification for the user
 router.post('/check-verification/:id', async (req, res) => {
   let { id } = req.params;
   const { token } = req.body;
@@ -126,7 +126,7 @@ router.post('/check-verification/:id', async (req, res) => {
   }
 });
 
-// logs user in with session
+// Logs user in with session
 router.post('/login', async (req, res) => {
   const { username, password } = req.body;
 
@@ -164,7 +164,7 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// logs out user
+// Logs out user
 router.delete('/logout', (req, res) => {
   if (req.session) {
     req.session.destroy(err => {

@@ -4,7 +4,9 @@ module.exports = {
   add,
   findBy,
   secureFindBy,
-  publicFindBy
+  publicFindBy,
+  updateBio,
+  remove
 };
 
 function add(user) {
@@ -38,4 +40,16 @@ function publicFindBy(filter) {
     .select('id', 'full_name', 'username', 'bio', 'profile_image', 'created_at')
     .where(filter)
     .first();
+}
+
+function updateBio(id, bio) {
+  return db('users')
+    .where({ id })
+    .update({ bio });
+}
+
+function remove(filter) {
+  return db('users')
+    .where(filter)
+    .del();
 }
