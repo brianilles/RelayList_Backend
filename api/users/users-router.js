@@ -147,9 +147,6 @@ router.delete(
   }
 );
 
-// Sends email to user to reset password
-// Confirms or denies password reset verification for the user
-
 // [OWNERSHIP REQUIRED] deletes a user
 router.delete('/:id', restrictedByAuthorization, async (req, res) => {
   const { id } = req.params;

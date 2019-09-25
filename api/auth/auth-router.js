@@ -4,6 +4,7 @@ const cryptoRandomString = require('crypto-random-string');
 
 const Users = require('../users/users-model.js');
 const UnverifiedUsers = require('../unverified-users/unverified-users-model.js');
+const UsersReset = require('./users-reset/users-reset.js');
 const EmailVerification = require('./email-verification.js');
 
 // Registers an unverified user
@@ -178,5 +179,83 @@ router.delete('/logout', (req, res) => {
     res.status(200).json({ message: 'Not logged in ' });
   }
 });
+
+// Starts reset password process
+router.post('/reset-password/start', async (req, res) => {
+  const { email, username } = req.body;
+
+  try {
+    if (!email && !username) {
+      res.status(422).end();
+    } else if (email) {
+      const user = await Users.secureFindBy({ email });
+      if (!user) {
+        res.status(404).end();
+      } else {
+        const presentReset = await UsersReset.findBy({
+          user_id: user.id
+        });
+
+        if (presentReset) {
+          await UsersReset.remove({ id: presentReset.id });
+        }
+
+        let stagedUserReset = { user_id: user.id };
+        stagedUserReset.token = cryptoRandomString({
+          length: 65,
+          type: 'url-safe'
+        });
+        const addedStagedUserReset = await UsersReset.add(stagedUserReset);
+
+        if (!addedStagedUserReset) {
+          res.status(500).json({
+            message: 'An error occurred while initiating password reset.'
+          });
+        } else {
+          // TODO take out some letters
+          res.status(200).json({ email: user.email });
+        }
+      }
+    } else if (username) {
+      const user = await Users.secureFindBy({ username });
+      if (!user) {
+        res.status(404).end();
+      } else {
+        const presentReset = await UsersReset.findBy({
+          user_id: user.id
+        });
+
+        if (presentReset) {
+          await UsersReset.remove({ id: presentReset.id });
+        }
+
+        let stagedUserReset = { user_id: user.id };
+        stagedUserReset.token = cryptoRandomString({
+          length: 65,
+          type: 'url-safe'
+        });
+        const addedStagedUserReset = await UsersReset.add(stagedUserReset);
+
+        if (!addedStagedUserReset) {
+          res.status(500).json({
+            message: 'An error occurred while initiating password reset.'
+          });
+        } else {
+          // TODO take out some letters
+          res.status(200).json({ email: user.email });
+        }
+      }
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: 'An unknown error occurred.'
+    });
+  }
+});
+
+// Sends an email to verify reset
+
+// Confirms or denies password reset verification for the user
 
 module.exports = router;

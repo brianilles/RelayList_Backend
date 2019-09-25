@@ -9,6 +9,7 @@
 | POST        | /api/auth/check-verification/:id | Confirms/denies token and registers user         |
 | POST        | /api/auth/login                  | Logs in user and send back user object w/ cookie |
 | DELETE      | /api/auth/logout                 | Logs out user                                    |
+| POST        | /api/auth/reset-password/start   | Starts reset password process                    |
 
 ### Endpoint examples
 
@@ -93,3 +94,23 @@ User Cookie
 Response:
 
 204 no content
+
+---
+
+#### POST `/api/auth/reset-password/start`
+
+Send in request body:
+
+```json
+{
+  "email": "example@gmail.com"
+}
+```
+
+Response:
+
+```json
+{
+  "email": "example@gmail.com"
+}
+```
