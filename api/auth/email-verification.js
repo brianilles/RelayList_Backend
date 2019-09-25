@@ -6,10 +6,9 @@ module.exports = {
 };
 
 async function sendVerificationEmail(to, token) {
-  const hostUrl = 'https://relaylist.com'; //env.
   const msg = {
     to,
-    from: 'no-reply@example.com',
+    from: 'no-reply@relaylist.com',
     subject: 'Verify your email',
     html: `<p>${token}</p>`
   };
