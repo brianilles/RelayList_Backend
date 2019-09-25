@@ -1,5 +1,5 @@
-module.exports = async (req, res, next) => {
-  if (req.session && req.session.UfQRSy) {
+module.exports = (req, res, next) => {
+  if (req.session && req.session.ui) {
     next();
   } else {
     res.status(401).json({ message: 'Invalid credential configuration.' });

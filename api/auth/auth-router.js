@@ -140,8 +140,7 @@ router.post('/login', async (req, res) => {
         res.status(404).json({ message: 'User not found.' });
       } else {
         if (user && bcrypt.compareSync(password, user.password)) {
-          req.session.UfQRSy = user.id;
-
+          req.session.ui = user.id;
           const foundUser = {
             id: user.id,
             email: user.email,
@@ -166,13 +165,13 @@ router.post('/login', async (req, res) => {
 });
 
 // logs out user
-router.get('/logout', (req, res) => {
+router.delete('/logout', (req, res) => {
   if (req.session) {
     req.session.destroy(err => {
       if (err) {
-        res.status(500).json({ message: 'could not logged out' });
+        res.status(500).json({ message: 'Could not logged out' });
       } else {
-        res.status(200).json({ message: 'logout success' });
+        res.status(204).json({ message: 'Logout success' });
       }
     });
   } else {

@@ -4,14 +4,13 @@
 
 Authentication and Authorization
 
-| HTTP METHOD | Endpoint                         | Description                              |
-| ----------- | -------------------------------- | ---------------------------------------- |
-| POST        | /api/auth/register               | Adds an unverified user                  |
-| GET         | /api/auth/send-verification/:id  | Sends verification email with token      |
-| POST        | /api/auth/check-verification/:id | Confirms/denies token and registers user |
-
-| POST | /api/auth/login | Logs in user and send back user object |
-| DELETE | /api/auth/login | Logs in user and send back user object |
+| HTTP METHOD | Endpoint                         | Description                                      |
+| ----------- | -------------------------------- | ------------------------------------------------ |
+| POST        | /api/auth/register               | Adds an unverified user                          |
+| GET         | /api/auth/send-verification/:id  | Sends verification email with token              |
+| POST        | /api/auth/check-verification/:id | Confirms/denies token and registers user         |
+| POST        | /api/auth/login                  | Logs in user and send back user object w/ cookie |
+| DELETE      | /api/auth/logout                 | Logs out user                                    |
 
 ## Endpoint examples
 
@@ -59,5 +58,42 @@ Response:
 Response:
 
 201
+
+---
+
+#### POST `/api/auth/login`
+
+Send in request body:
+
+```json
+{
+  "username": "brian",
+  "password": "hello"
+}
+```
+
+Response:
+
+User Cookie
+
+```json
+{
+  "id": 13,
+  "email": "brianrilles@gmail.com",
+  "full_name": "Brian Illes",
+  "username": "brian",
+  "bio": null,
+  "profile_image": null,
+  "created_at": "2019-09-25 03:45:38"
+}
+```
+
+---
+
+#### POST `/api/auth/logout`
+
+Response:
+
+204 no content
 
 ---
