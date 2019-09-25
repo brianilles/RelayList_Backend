@@ -7,6 +7,8 @@ const UnverifiedUsers = require('../unverified-users/unverified-users-model.js')
 const UsersReset = require('./users-reset/users-reset.js');
 const EmailVerification = require('./email-verification.js');
 
+const resetPasswordMiddleware = require('./reset-password-middleware.js');
+
 // Registers an unverified user
 router.post('/register', async (req, res) => {
   let user = req.body;
@@ -182,10 +184,9 @@ router.delete('/logout', (req, res) => {
 
 // Starts reset password process
 router.post('/reset-password/start', async (req, res) => {
-  const { email, username } = req.body;
-
+  const { email } = req.body;
   try {
-    if (!email && !username) {
+    if (!email) {
       res.status(422).end();
     } else if (email) {
       const user = await Users.secureFindBy({ email });
@@ -195,36 +196,6 @@ router.post('/reset-password/start', async (req, res) => {
         const presentReset = await UsersReset.findBy({
           user_id: user.id
         });
-
-        if (presentReset) {
-          await UsersReset.remove({ id: presentReset.id });
-        }
-
-        let stagedUserReset = { user_id: user.id };
-        stagedUserReset.token = cryptoRandomString({
-          length: 65,
-          type: 'url-safe'
-        });
-        const addedStagedUserReset = await UsersReset.add(stagedUserReset);
-
-        if (!addedStagedUserReset) {
-          res.status(500).json({
-            message: 'An error occurred while initiating password reset.'
-          });
-        } else {
-          // TODO take out some letters
-          res.status(200).json({ email: user.email });
-        }
-      }
-    } else if (username) {
-      const user = await Users.secureFindBy({ username });
-      if (!user) {
-        res.status(404).end();
-      } else {
-        const presentReset = await UsersReset.findBy({
-          user_id: user.id
-        });
-
         if (presentReset) {
           await UsersReset.remove({ id: presentReset.id });
         }
@@ -255,7 +226,98 @@ router.post('/reset-password/start', async (req, res) => {
 });
 
 // Sends an email to verify reset
+router.post('/reset-password/send-reset', async (req, res) => {
+  let { email } = req.body;
+  if (!email) {
+    res.status(422).end();
+  } else {
+    try {
+      const user = await Users.secureFindBy({ email });
+
+      if (!user) {
+        res.status(404).end();
+      } else {
+        const userReset = await UsersReset.findBy({ user_id: user.id });
+
+        if (!userReset) {
+          res.status(404).end();
+        } else {
+          const emailStatus = await EmailVerification.sendVerificationEmail(
+            user.email,
+            userReset.token
+          );
+          if (emailStatus) {
+            res.status(200).json({ message: 'Email sent' });
+          } else {
+            res.status(500).json({ message: 'Email could not be sent.' });
+          }
+        }
+      }
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'An unknown error occurred.' });
+    }
+  }
+});
 
 // Confirms or denies password reset verification for the user
+router.post('/reset-password/check', async (req, res) => {
+  const { token } = req.body;
+  if (!token) {
+    res.status(422).end();
+  } else {
+    try {
+      const userReset = await UsersReset.findBy({ token });
+      if (!userReset) {
+        res.status(404).end();
+      } else {
+        if (token === userReset.token) {
+          req.session.zi = userReset.user_id;
+          await UsersReset.remove({ id: userReset.id });
+          res.status(200).end();
+        } else {
+          res.status(405).json({ message: 'Invalid' });
+        }
+      }
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'An unknown error occurred.' });
+    }
+  }
+});
+
+// Resets password
+router.post(
+  '/reset-password/complete',
+  resetPasswordMiddleware,
+  async (req, res) => {
+    const { password } = req.body;
+    if (!password) {
+      res.status(422).end();
+    } else {
+      try {
+        const updatedUser = await Users.updatePassword({
+          id: req.session.zi,
+          password
+        });
+
+        if (!updatedUser) {
+          res.status(500).json({ message: 'An error occurred when updating.' });
+        } else {
+          req.session.destroy(err => {
+            if (err) {
+              res.status(500).json({ message: 'Could not invalided.' });
+            } else {
+              res.status(200).end();
+            }
+          });
+        }
+      } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'An unknown error occurred.' });
+      }
+    }
+  }
+);
 
 module.exports = router;

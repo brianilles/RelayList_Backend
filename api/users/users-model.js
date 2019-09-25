@@ -7,7 +7,8 @@ module.exports = {
   publicFindBy,
   updateBio,
   remove,
-  updateImg
+  updateImg,
+  updatePassword
 };
 
 function add(user) {
@@ -59,4 +60,10 @@ function updateImg({ id, profile_image }) {
   return db('users')
     .where({ id })
     .update({ profile_image });
+}
+
+function updatePassword({ id, password }) {
+  return db('users')
+    .where({ id })
+    .update({ password });
 }

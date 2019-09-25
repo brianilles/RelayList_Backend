@@ -2,14 +2,17 @@
 
 ## Endpoints
 
-| HTTP METHOD | Endpoint                         | Description                                      |
-| ----------- | -------------------------------- | ------------------------------------------------ |
-| POST        | /api/auth/register               | Adds an unverified user                          |
-| GET         | /api/auth/send-verification/:id  | Sends verification email with token              |
-| POST        | /api/auth/check-verification/:id | Confirms/denies token and registers user         |
-| POST        | /api/auth/login                  | Logs in user and send back user object w/ cookie |
-| DELETE      | /api/auth/logout                 | Logs out user                                    |
-| POST        | /api/auth/reset-password/start   | Starts reset password process                    |
+| HTTP METHOD | Endpoint                            | Description                                      |
+| ----------- | ----------------------------------- | ------------------------------------------------ |
+| POST        | /api/auth/register                  | Adds an unverified user                          |
+| GET         | /api/auth/send-verification/:id     | Sends verification email with token              |
+| POST        | /api/auth/check-verification/:id    | Confirms/denies token and registers user         |
+| POST        | /api/auth/login                     | Logs in user and send back user object w/ cookie |
+| DELETE      | /api/auth/logout                    | Logs out user                                    |
+| POST        | /api/auth/reset-password/start      | Starts reset password process                    |
+| POST        | /api/auth/reset-password/send-reset | Send email to user's account                     |
+| POST        | /api/auth/reset-password/check      | Confirms/denies token and sets cookie user       |
+| POST        | /api/auth/reset-password/complete   | Completes password update and invalidates cookie |
 
 ### Endpoint examples
 
@@ -114,3 +117,56 @@ Response:
   "email": "example@gmail.com"
 }
 ```
+
+---
+
+#### POST `/api/auth/reset-password/send-reset`
+
+Send in request body:
+
+```json
+{
+  "email": "example@gmail.com"
+}
+```
+
+Response:
+
+```json
+{
+  "message": "Email sent"
+}
+```
+
+---
+
+#### POST `/api/auth/reset-password/check`
+
+Send in request body:
+
+```json
+{
+  "token": "EJymdQm~NDjhmwJORTJkPdtfa0u9LfHktzK_8FYcM7b.GdqJPO3nbCe9AFfIffYKn"
+}
+```
+
+Response:
+
+200
+
+Cookie
+
+---
+
+#### POST `/api/auth/reset-password/complete`
+
+Send in request body:
+
+```json
+{
+  "password": "a;lsdjfasdfsdafa"
+}
+```
+
+Response:
+200
