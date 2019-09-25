@@ -10,6 +10,7 @@ exports.up = function(knex) {
     tbl.string('title', 80).notNullable();
     tbl.string('description', 128).notNullable();
     tbl.string('type', 20).notNullable();
+    tbl.json('content').notNullable();
     tbl
       .timestamp('created_at', {
         useTz: false
