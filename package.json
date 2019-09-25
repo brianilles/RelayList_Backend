@@ -22,6 +22,7 @@
   "dependencies": {
     "@sendgrid/mail": "^6.4.0",
     "bcryptjs": "^2.4.3",
+    "connect-session-knex": "^1.4.0",
     "cors": "^2.8.5",
     "crypto-random-string": "^3.0.1",
     "dotenv": "^8.1.0",

@@ -48,13 +48,6 @@ router.post('/register', async (req, res) => {
         const addedUnverifiedUser = await UnverifiedUsers.secureFindBy({
           email
         });
-
-        // remove to other endpoint
-        // const emailSent = await EmailVerification.sendVerificationEmail(
-        //   addedUnverifiedUser.email,
-        //   addedUnverifiedUser.token
-        // );
-
         res.status(201).json(addedUnverifiedUser);
       }
     } catch (error) {
@@ -137,6 +130,8 @@ router.post('/login', async (req, res) => {
         res.status(404).json({ message: 'User not found.' });
       } else {
         if (user && bcrypt.compareSync(password, user.password)) {
+          req.session.ur = { id: user.id }; //cookie created
+
           const foundUser = {
             id: user.id,
             email: user.email,
@@ -150,10 +145,25 @@ router.post('/login', async (req, res) => {
         }
       }
     } catch (error) {
+      console.error(error);
       res.status(500).json({
         message: 'An unknown error occurred.'
       });
     }
+  }
+});
+
+router.get('/logout', (req, res) => {
+  if (req.session) {
+    req.session.destroy(err => {
+      if (err) {
+        res.status(500).json({ message: 'could not logged out' });
+      } else {
+        res.status(200).json({ message: 'logout success' });
+      }
+    });
+  } else {
+    res.status(200).json({ message: 'Not logged in ' });
   }
 });
 
