@@ -3,7 +3,8 @@ const db = require('../../data/dbConfig.js');
 module.exports = {
   add,
   findBy,
-  secureFindBy
+  secureFindBy,
+  publicFindBy
 };
 
 function add(user) {
@@ -28,6 +29,13 @@ function secureFindBy(filter) {
       'profile_image',
       'created_at'
     )
+    .where(filter)
+    .first();
+}
+
+function publicFindBy(filter) {
+  return db('users')
+    .select('id', 'full_name', 'username', 'bio', 'profile_image', 'created_at')
     .where(filter)
     .first();
 }
