@@ -1,5 +1,6 @@
 module.exports = async (req, res, next) => {
-  if (req.session && req.session.ui) {
+  console.log(req.session);
+  if (req.session && req.session.vi) {
     const { id } = req.params;
     try {
       if (id == req.session.vi) {

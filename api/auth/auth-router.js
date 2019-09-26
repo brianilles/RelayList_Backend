@@ -51,7 +51,9 @@ router.post('/register', async (req, res) => {
         const addedUnverifiedUser = await UnverifiedUsers.secureFindBy({
           email
         });
+        console.log(req.session);
         req.session.vi = addedUnverifiedUser.id;
+
         res.status(201).json(addedUnverifiedUser);
       }
     } catch (error) {

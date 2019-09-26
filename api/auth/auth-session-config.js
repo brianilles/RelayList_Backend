@@ -3,10 +3,10 @@ const knexSessionStore = require('connect-session-knex')(session);
 const dbConnection = require('../../data/dbConfig.js');
 
 module.exports = {
-  name: 'zxrwqyt',
+  name: 'gKrTa',
   secret: process.env.SESSION_SECRET,
   cookie: {
-    maxAge: 1000 * 60 * 10, // ms
+    maxAge: 1000 * 60 * 60, // ms: 1 hour
     SESSION_SECURE: false, // use cookie over https
     httpOnly: true // can JS access the cookie on the client
   },
@@ -14,9 +14,9 @@ module.exports = {
   saveUninitialized: false, // GDPR compliance
   store: new knexSessionStore({
     knex: dbConnection,
-    tablename: 'sessions',
+    tablename: 'a_sessions',
     sidfieldname: 'sid',
     createtable: true,
-    clearInterval: 1000 * 60 * 30 // delete expired sessions
+    clearInterval: 1000 * 60 * 15 // delete expired sessions
   })
 };
