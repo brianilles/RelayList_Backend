@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const Posts = require('./posts-model.js');
 const Users = require('../users/users-model.js');
+const Likes = require('./likes-model.js');
 
 const restrictedByAuthorization = require('../auth/restricted-by-authorization-middleware.js');
 
@@ -131,5 +132,42 @@ router.delete('/:id/:post_id', restrictedByAuthorization, async (req, res) => {
     }
   }
 });
+
+router.get(
+  '/like/:id/:post_id',
+  restrictedByAuthorization,
+  async (req, res) => {
+    const { id, post_id } = req.params;
+
+    if (!id || !post_id) {
+      res.status(422).end();
+    } else {
+      try {
+        const post = await Posts.findBy({ id: post_id });
+
+        if (!post) {
+          res.status(404).end();
+        } else {
+          const hasLiked = await Likes.findBy({ user_id: id, post_id });
+
+          if (hasLiked) {
+            const removedLike = await Likes.remove({ user_id: id, post_id });
+            if (removedLike) {
+              res.status(204).end();
+            }
+          } else {
+            const addedLike = await Likes.add({ user_id: id, post_id });
+            if (addedLike) {
+              res.status(201).json({ message: 'Like added.' });
+            }
+          }
+        }
+      } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'An unknown error occurred.' });
+      }
+    }
+  }
+);
 
 module.exports = router;
