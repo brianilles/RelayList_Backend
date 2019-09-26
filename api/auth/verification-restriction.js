@@ -1,8 +1,8 @@
 module.exports = async (req, res, next) => {
-  if (req.session && req.session.zi) {
+  if (req.session && req.session.ui) {
     const { id } = req.params;
     try {
-      if (id == req.session.zi) {
+      if (id == req.session.vi) {
         next();
       } else {
         res.status(401).json({ message: 'Invalid credentials' });

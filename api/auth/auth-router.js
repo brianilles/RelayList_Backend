@@ -8,6 +8,8 @@ const UsersReset = require('./users-reset/users-reset.js');
 const EmailVerification = require('./email-verification.js');
 
 const resetPasswordMiddleware = require('./reset-password-middleware.js');
+const restrictedByAuth = require('./restricted-by-authorization-middleware.js');
+const verificationRestricted = require('./verification-restriction.js');
 
 // Registers an unverified user
 router.post('/register', async (req, res) => {
@@ -49,7 +51,7 @@ router.post('/register', async (req, res) => {
         const addedUnverifiedUser = await UnverifiedUsers.secureFindBy({
           email
         });
-
+        req.session.vi = addedUnverifiedUser.id;
         res.status(201).json(addedUnverifiedUser);
       }
     } catch (error) {
@@ -60,90 +62,98 @@ router.post('/register', async (req, res) => {
 });
 
 // Sends an email to verify user
-router.get('/send-verification/:id', async (req, res) => {
-  let { id } = req.params;
+router.get(
+  '/send-verification/:id',
+  verificationRestricted,
+  async (req, res) => {
+    let { id } = req.params;
 
-  if (!id) {
-    res.status(422).end();
-  } else {
-    try {
-      const unverifiedUser = await UnverifiedUsers.secureFindBy({ id });
+    if (!id) {
+      res.status(422).end();
+    } else {
+      try {
+        const unverifiedUser = await UnverifiedUsers.secureFindBy({ id });
 
-      if (!unverifiedUser) {
-        res.status(404).end();
-      } else {
-        const tokenBefore = cryptoRandomString({
-          length: 65,
-          type: 'url-safe'
-        });
-        const tokenHash = bcrypt.hashSync(tokenBefore, 12);
-        const tokenAdded = await UnverifiedUsers.updateToken({
-          id,
-          token: tokenHash
-        });
-
-        if (tokenAdded) {
-          const updatedUser = await UnverifiedUsers.findTokenEmailBy({
-            id
-          });
-          const emailStatus = await EmailVerification.sendVerificationEmail(
-            updatedUser.email,
-            tokenBefore
-          );
-          if (emailStatus) {
-            res.status(200).json({ message: 'Email sent' });
-          } else {
-            res.status(500).json({ message: 'Email could not be sent.' });
-          }
+        if (!unverifiedUser) {
+          res.status(404).end();
         } else {
-          res.status(500).json({ message: 'An error occurred.' });
+          const tokenBefore = cryptoRandomString({
+            length: 65,
+            type: 'url-safe'
+          });
+          const tokenHash = bcrypt.hashSync(tokenBefore, 12);
+          const tokenAdded = await UnverifiedUsers.updateToken({
+            id,
+            token: tokenHash
+          });
+
+          if (tokenAdded) {
+            const updatedUser = await UnverifiedUsers.findTokenEmailBy({
+              id
+            });
+            const emailStatus = await EmailVerification.sendVerificationEmail(
+              updatedUser.email,
+              tokenBefore
+            );
+            if (emailStatus) {
+              res.status(200).json({ message: 'Email sent' });
+            } else {
+              res.status(500).json({ message: 'Email could not be sent.' });
+            }
+          } else {
+            res.status(500).json({ message: 'An error occurred.' });
+          }
         }
+      } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'An unknown error occurred.' });
       }
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: 'An unknown error occurred.' });
     }
   }
-});
+);
 
 // Confirms or denies verification for the user
-router.post('/check-verification/:id', async (req, res) => {
-  let { id } = req.params;
-  const { token } = req.body;
+router.post(
+  '/check-verification/:id',
+  verificationRestricted,
+  async (req, res) => {
+    let { id } = req.params;
+    const { token } = req.body;
 
-  if (!token || !id) {
-    res.status(422).end();
-  } else {
-    try {
-      const unverifiedUser = await UnverifiedUsers.findBy({ id });
+    if (!token || !id) {
+      res.status(422).end();
+    } else {
+      try {
+        const unverifiedUser = await UnverifiedUsers.findBy({ id });
 
-      if (!unverifiedUser) {
-        res.status(404).end();
-      } else {
-        if (bcrypt.compareSync(token, unverifiedUser.token)) {
-          const addedUser = await Users.add({
-            email: unverifiedUser.email,
-            full_name: unverifiedUser.full_name,
-            username: unverifiedUser.username,
-            password: unverifiedUser.password
-          });
-
-          if (addedUser) {
-            await UnverifiedUsers.remove({ id });
-            res.status(201).json();
-          } else {
-            res.status(500).json({ message: 'User could not be added.' });
-          }
+        if (!unverifiedUser) {
+          res.status(404).end();
         } else {
-          res.status(405).json({ message: 'Invalid.' });
+          if (bcrypt.compareSync(token, unverifiedUser.token)) {
+            const addedUser = await Users.add({
+              email: unverifiedUser.email,
+              full_name: unverifiedUser.full_name,
+              username: unverifiedUser.username,
+              password: unverifiedUser.password
+            });
+
+            if (addedUser) {
+              await UnverifiedUsers.remove({ id });
+              res.status(201).json();
+            } else {
+              res.status(500).json({ message: 'User could not be added.' });
+            }
+          } else {
+            res.status(405).json({ message: 'Invalid.' });
+          }
         }
+      } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'An unknown error occurred.' });
       }
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: 'An unknown error occurred.' });
     }
   }
-});
+);
 
 // Logs user in with session
 router.post('/login', async (req, res) => {
@@ -184,7 +194,7 @@ router.post('/login', async (req, res) => {
 });
 
 // Logs out user
-router.delete('/logout', (req, res) => {
+router.delete('/logout', restrictedByAuth, (req, res) => {
   if (req.session) {
     req.session.destroy(err => {
       if (err) {
@@ -215,7 +225,13 @@ router.post('/reset-password/start', async (req, res) => {
         if (presentReset) {
           await UsersReset.remove({ id: presentReset.id });
         }
-        const addedStagedUserReset = await UsersReset.add({ user_id: user.id });
+        const addedStagedUserReset = await UsersReset.add({
+          user_id: user.id
+        });
+
+        const newReset = await UsersReset.findBy({
+          user_id: addedStagedUserReset[0]
+        });
 
         if (!addedStagedUserReset) {
           res.status(500).json({
@@ -223,7 +239,8 @@ router.post('/reset-password/start', async (req, res) => {
           });
         } else {
           // TODO take out some letters
-          res.status(200).json({ email: user.email });
+          req.session.zi = id;
+          res.status(200).json({ email: user.email, id: newReset.id });
         }
       }
     }
@@ -236,104 +253,121 @@ router.post('/reset-password/start', async (req, res) => {
 });
 
 // Sends an email to verify reset
-router.post('/reset-password/send-reset', async (req, res) => {
-  let { email } = req.body;
-  if (!email) {
-    res.status(422).end();
-  } else {
-    try {
-      const user = await Users.secureFindBy({ email });
+router.post(
+  '/reset-password/send-reset/:id',
+  resetPasswordMiddleware,
+  async (req, res) => {
+    let { email } = req.body;
+    if (!email) {
+      res.status(422).end();
+    } else {
+      try {
+        const user = await Users.secureFindBy({ email });
 
-      if (!user) {
-        res.status(404).end();
-      } else {
-        const userReset = await UsersReset.findBy({ user_id: user.id });
-
-        if (!userReset) {
+        if (!user) {
           res.status(404).end();
         } else {
-          const tokenBefore = cryptoRandomString({
-            length: 65,
-            type: 'url-safe'
-          });
-          const tokenHash = bcrypt.hashSync(tokenBefore, 12);
-          const tokenAdded = await UsersReset.updateToken({
-            id: userReset.id,
-            token: tokenHash
-          });
-          if (tokenAdded) {
-            const emailStatus = await EmailVerification.sendVerificationEmail(
-              user.email,
-              tokenBefore
-            );
-            if (emailStatus) {
-              res.status(200).json({ id: userReset.id });
+          const userReset = await UsersReset.findBy({ user_id: user.id });
+
+          if (!userReset) {
+            res.status(404).end();
+          } else {
+            const tokenBefore = cryptoRandomString({
+              length: 65,
+              type: 'url-safe'
+            });
+            const tokenHash = bcrypt.hashSync(tokenBefore, 12);
+            const tokenAdded = await UsersReset.updateToken({
+              id: userReset.id,
+              token: tokenHash
+            });
+            if (tokenAdded) {
+              const emailStatus = await EmailVerification.sendVerificationEmail(
+                user.email,
+                tokenBefore
+              );
+              if (emailStatus) {
+                res.status(200).json({ id: userReset.id });
+              } else {
+                res.status(500).json({ message: 'Email could not be sent.' });
+              }
             } else {
               res.status(500).json({ message: 'Email could not be sent.' });
             }
-          } else {
-            res.status(500).json({ message: 'Email could not be sent.' });
           }
         }
+      } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'An unknown error occurred.' });
       }
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: 'An unknown error occurred.' });
     }
   }
-});
+);
 
 // Confirms or denies password reset verification for the user
-router.post('/reset-password/check/:id', async (req, res) => {
-  const { token } = req.body;
-  if (!token) {
-    res.status(422).end();
-  } else {
-    try {
-      const userReset = await UsersReset.findBy({ id });
-      if (!userReset) {
-        res.status(404).end();
-      } else {
-        if (bcrypt.compareSync(token, userReset.token)) {
-          req.session.zi = userReset.user_id;
-          await UsersReset.remove({ id: userReset.id });
-          res.status(200).end();
+router.post(
+  '/reset-password/check/:id',
+  resetPasswordMiddleware,
+  async (req, res) => {
+    const { token } = req.body;
+    if (!token) {
+      res.status(422).end();
+    } else {
+      try {
+        const userReset = await UsersReset.findBy({ id });
+        if (!userReset) {
+          res.status(404).end();
         } else {
-          res.status(405).json({ message: 'Invalid' });
+          if (bcrypt.compareSync(token, userReset.token)) {
+            res.status(200).end();
+          } else {
+            res.status(405).json({ message: 'Invalid' });
+          }
         }
+      } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'An unknown error occurred.' });
       }
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: 'An unknown error occurred.' });
     }
   }
-});
+);
 
 // Resets password
 router.post(
-  '/reset-password/complete',
+  '/reset-password/complete/:id',
   resetPasswordMiddleware,
   async (req, res) => {
-    const { password } = req.body;
+    const { token, password } = req.body;
     if (!password) {
       res.status(422).end();
     } else {
       try {
-        const updatedUser = await Users.updatePassword({
-          id: req.session.zi,
-          password
-        });
-
-        if (!updatedUser) {
-          res.status(500).json({ message: 'An error occurred when updating.' });
+        const userReset = await UsersReset.findBy({ id });
+        if (!userReset) {
+          res.status(404).end();
         } else {
-          req.session.destroy(err => {
-            if (err) {
-              res.status(500).json({ message: 'Could not invalided.' });
+          if (bcrypt.compareSync(token, userReset.token)) {
+            await UsersReset.remove({ id: userReset.id });
+            const updatedUser = await Users.updatePassword({
+              id: req.session.zi,
+              password
+            });
+            if (!updatedUser) {
+              res
+                .status(500)
+                .json({ message: 'An error occurred when updating.' });
             } else {
-              res.status(200).end();
+              req.session.destroy(err => {
+                if (err) {
+                  res.status(500).json({ message: 'Could not invalided.' });
+                } else {
+                  res.status(200).end();
+                }
+              });
             }
-          });
+          } else {
+            res.status(405).json({ message: 'Invalid' });
+          }
         }
       } catch (error) {
         console.error(error);

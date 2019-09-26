@@ -1,10 +1,12 @@
 const express = require('express');
 const router = require('express').Router();
+const fs = require('fs');
+
 const Users = require('./users-model.js');
+const Subscribers = require('./subscriber-model.js');
+
 const restrictedByAuthorization = require('../auth/restricted-by-authorization-middleware.js');
 const uploadImage = require('./image-uploads.js');
-const Subscribers = require('./subscriber-model.js');
-const fs = require('fs');
 
 // Gets user's public information
 router.get('/public/:id', async (req, res) => {
