@@ -133,7 +133,7 @@ router.delete('/:id/:post_id', restrictedByAuthorization, async (req, res) => {
   }
 });
 
-router.get(
+router.post(
   '/like/:id/:post_id',
   restrictedByAuthorization,
   async (req, res) => {

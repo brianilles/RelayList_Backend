@@ -11,6 +11,7 @@
 | POST        | /api/users/profile-image/:id        | Adds user's profile image      |
 | GET         | /api/users/profile-images/:filepath | Gets user's profile image      |
 | DELETE      | /api/users/profile-image/:id        | Deletes a user's profile image |
+| POST        | /api/subscribe/:id/:creator_id      | Adds/Removes a subscriber      |
 
 #### GET `/api/users/public/:id`
 
@@ -114,3 +115,9 @@ Response:
 204 no content
 
 ---
+
+#### POST `/api/users/subscribe/:id/:creator_id`
+
+Requires user cookie that owns resource
+
+200 or 204

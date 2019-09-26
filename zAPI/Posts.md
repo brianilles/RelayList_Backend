@@ -2,12 +2,13 @@
 
 ## Endpoints
 
-| HTTP METHOD | Endpoint                         | Description           |
-| ----------- | -------------------------------- | --------------------- |
-| POST        | /api/posts/:id                   | Adds a user's post    |
-| GET         | /api/posts/post-preview/:post_id | Gets a post's preview |
-| GET         | /api/posts/:post_id              | Gets a post           |
-| DELETE      | /api/posts/:id/:post_id          | Deletes user's post   |
+| HTTP METHOD | Endpoint                         | Description                |
+| ----------- | -------------------------------- | -------------------------- |
+| POST        | /api/posts/:id                   | Adds a user's post         |
+| GET         | /api/posts/post-preview/:post_id | Gets a post's preview      |
+| GET         | /api/posts/:post_id              | Gets a post                |
+| DELETE      | /api/posts/:id/:post_id          | Deletes user's post        |
+| POST        | /api/posts/like/:id/:post_id     | Adds/deletes a user's post |
 
 ### Endpoint examples
 
@@ -121,3 +122,10 @@ Response:
 204 no content
 
 ---
+
+#### POST `/api/posts/like/:id/:post_id`
+
+Cooke auth
+
+Response:
+204 or 200

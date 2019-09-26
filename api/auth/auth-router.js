@@ -44,7 +44,6 @@ router.post('/register', async (req, res) => {
 
         const hash = bcrypt.hashSync(user.password, 12);
         user.password = hash;
-        user.token = cryptoRandomString({ length: 65, type: 'url-safe' });
 
         await UnverifiedUsers.add(user);
         const addedUnverifiedUser = await UnverifiedUsers.secureFindBy({
@@ -68,19 +67,36 @@ router.get('/send-verification/:id', async (req, res) => {
     res.status(422).end();
   } else {
     try {
-      const unverifiedUser = await UnverifiedUsers.findTokenEmailBy({ id });
+      const unverifiedUser = await UnverifiedUsers.secureFindBy({ id });
 
       if (!unverifiedUser) {
         res.status(404).end();
       } else {
-        const emailStatus = await EmailVerification.sendVerificationEmail(
-          unverifiedUser.email,
-          unverifiedUser.token
-        );
-        if (emailStatus) {
-          res.status(200).json({ message: 'Email sent' });
+        const tokenBefore = cryptoRandomString({
+          length: 65,
+          type: 'url-safe'
+        });
+        const tokenHash = bcrypt.hashSync(tokenBefore, 12);
+        const tokenAdded = await UnverifiedUsers.updateToken({
+          id,
+          token: tokenHash
+        });
+
+        if (tokenAdded) {
+          const updatedUser = await UnverifiedUsers.findTokenEmailBy({
+            id
+          });
+          const emailStatus = await EmailVerification.sendVerificationEmail(
+            updatedUser.email,
+            tokenBefore
+          );
+          if (emailStatus) {
+            res.status(200).json({ message: 'Email sent' });
+          } else {
+            res.status(500).json({ message: 'Email could not be sent.' });
+          }
         } else {
-          res.status(500).json({ message: 'Email could not be sent.' });
+          res.status(500).json({ message: 'An error occurred.' });
         }
       }
     } catch (error) {
@@ -104,7 +120,7 @@ router.post('/check-verification/:id', async (req, res) => {
       if (!unverifiedUser) {
         res.status(404).end();
       } else {
-        if (token === unverifiedUser.token) {
+        if (bcrypt.compareSync(token, unverifiedUser.token)) {
           const addedUser = await Users.add({
             email: unverifiedUser.email,
             full_name: unverifiedUser.full_name,
@@ -199,13 +215,7 @@ router.post('/reset-password/start', async (req, res) => {
         if (presentReset) {
           await UsersReset.remove({ id: presentReset.id });
         }
-
-        let stagedUserReset = { user_id: user.id };
-        stagedUserReset.token = cryptoRandomString({
-          length: 65,
-          type: 'url-safe'
-        });
-        const addedStagedUserReset = await UsersReset.add(stagedUserReset);
+        const addedStagedUserReset = await UsersReset.add({ user_id: user.id });
 
         if (!addedStagedUserReset) {
           res.status(500).json({
@@ -242,12 +252,25 @@ router.post('/reset-password/send-reset', async (req, res) => {
         if (!userReset) {
           res.status(404).end();
         } else {
-          const emailStatus = await EmailVerification.sendVerificationEmail(
-            user.email,
-            userReset.token
-          );
-          if (emailStatus) {
-            res.status(200).json({ message: 'Email sent' });
+          const tokenBefore = cryptoRandomString({
+            length: 65,
+            type: 'url-safe'
+          });
+          const tokenHash = bcrypt.hashSync(tokenBefore, 12);
+          const tokenAdded = await UsersReset.updateToken({
+            id: userReset.id,
+            token: tokenHash
+          });
+          if (tokenAdded) {
+            const emailStatus = await EmailVerification.sendVerificationEmail(
+              user.email,
+              tokenBefore
+            );
+            if (emailStatus) {
+              res.status(200).json({ id: userReset.id });
+            } else {
+              res.status(500).json({ message: 'Email could not be sent.' });
+            }
           } else {
             res.status(500).json({ message: 'Email could not be sent.' });
           }
@@ -261,17 +284,17 @@ router.post('/reset-password/send-reset', async (req, res) => {
 });
 
 // Confirms or denies password reset verification for the user
-router.post('/reset-password/check', async (req, res) => {
+router.post('/reset-password/check/:id', async (req, res) => {
   const { token } = req.body;
   if (!token) {
     res.status(422).end();
   } else {
     try {
-      const userReset = await UsersReset.findBy({ token });
+      const userReset = await UsersReset.findBy({ id });
       if (!userReset) {
         res.status(404).end();
       } else {
-        if (token === userReset.token) {
+        if (bcrypt.compareSync(token, userReset.token)) {
           req.session.zi = userReset.user_id;
           await UsersReset.remove({ id: userReset.id });
           res.status(200).end();

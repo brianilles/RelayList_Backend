@@ -3,6 +3,7 @@ const router = require('express').Router();
 const Users = require('./users-model.js');
 const restrictedByAuthorization = require('../auth/restricted-by-authorization-middleware.js');
 const uploadImage = require('./image-uploads.js');
+const Subscribers = require('./subscriber-model.js');
 const fs = require('fs');
 
 // Gets user's public information
@@ -170,5 +171,51 @@ router.delete('/:id', restrictedByAuthorization, async (req, res) => {
     res.status(500).json({ message: 'An unknown error occurred.' });
   }
 });
+
+// [OWNERSHIP REQUIRED] adds a subscriber to a user
+router.post(
+  '/users/subscribe/:id/:creator_id',
+  restrictedByAuthorization,
+  async (req, res) => {
+    const { id, creator_id } = req.params;
+    if (!id || !creator) {
+      res.sendStatus(422).end();
+    } else {
+      try {
+        const user = await Users.secureFindBy({ id });
+
+        if (!user) {
+          res.status(404).end();
+        } else {
+          const hasSubscribed = await Subscribers.findBy({
+            user_id: id,
+            creator_id
+          });
+
+          if (hasSubscribed) {
+            const removedSubscription = await PushSubscriptionOptions.remove({
+              user_id: id,
+              creator_id
+            });
+            if (removedSubscription) {
+              res.status(204).end();
+            }
+          } else {
+            const addedSubscriptions = await Subscribers.add({
+              user_id: id,
+              creator_id
+            });
+            if (addedSubscriptions) {
+              res.status(201).json({ message: 'Subscription added.' });
+            }
+          }
+        }
+      } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'An unknown error occurred.' });
+      }
+    }
+  }
+);
 
 module.exports = router;

@@ -7,7 +7,7 @@ exports.up = function(knex) {
       .references('users.id')
       .onUpdate('CASCADE')
       .onDelete('CASCADE');
-    tbl.string('token', 128).notNullable();
+    tbl.string('token', 128);
     tbl
       .timestamp('created_at', {
         useTz: false

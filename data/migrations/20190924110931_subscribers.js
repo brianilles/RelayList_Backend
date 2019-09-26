@@ -8,7 +8,7 @@ exports.up = function(knex) {
       .onUpdate('CASCADE')
       .onDelete('CASCADE');
     tbl
-      .integer('subscriber_id')
+      .integer('creator_id')
       .unsigned()
       .references('users.id')
       .onUpdate('CASCADE')

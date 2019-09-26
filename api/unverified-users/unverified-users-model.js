@@ -5,7 +5,8 @@ module.exports = {
   findBy,
   secureFindBy,
   findTokenEmailBy,
-  remove
+  remove,
+  updateToken
 };
 
 function add(user) {
@@ -31,6 +32,12 @@ function findTokenEmailBy(filter) {
     .select('id', 'email', 'token')
     .where(filter)
     .first();
+}
+
+function updateToken({ id, token }) {
+  return db('unverified_users')
+    .where({ id })
+    .update({ token });
 }
 
 function remove(filter) {
