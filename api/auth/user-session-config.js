@@ -4,7 +4,7 @@ const dbConnection = require('../../data/dbConfig.js');
 
 module.exports = {
   name: 'srtybu',
-  secret: process.env.SESSION_SECRET,
+  secret: process.env.SESSION_SECRET_B,
   cookie: {
     maxAge: 1000 * 60 * 60 * 24 * 365, // ms: 1 year
     SESSION_SECURE: false, // use cookie over https

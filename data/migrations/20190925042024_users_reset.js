@@ -8,6 +8,7 @@ exports.up = function(knex) {
       .onUpdate('CASCADE')
       .onDelete('CASCADE');
     tbl.string('token', 128);
+    tbl.boolean('has_passed').defaultTo(false);
     tbl
       .timestamp('created_at', {
         useTz: false

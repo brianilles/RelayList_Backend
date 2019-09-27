@@ -2,17 +2,17 @@
 
 ## Endpoints
 
-| HTTP METHOD | Endpoint                            | Description                                      |
-| ----------- | ----------------------------------- | ------------------------------------------------ |
-| POST        | /api/auth/register                  | Adds an unverified user                          |
-| GET         | /api/auth/send-verification/:id     | Sends verification email with token              |
-| POST        | /api/auth/check-verification/:id    | Confirms/denies token and registers user         |
-| POST        | /api/auth/login                     | Logs in user and send back user object w/ cookie |
-| DELETE      | /api/auth/logout                    | Logs out user                                    |
-| POST        | /api/auth/reset-password/start      | Starts reset password process                    |
-| POST        | /api/auth/reset-password/send-reset | Send email to user's account                     |
-| POST        | /api/auth/reset-password/check      | Confirms/denies token and sets cookie user       |
-| POST        | /api/auth/reset-password/complete   | Completes password update and invalidates cookie |
+| HTTP METHOD | Endpoint                            | Description                                      | Cookies Required |
+| ----------- | ----------------------------------- | ------------------------------------------------ | ---------------- |
+| POST        | /api/auth/register                  | Adds an unverified user                          | NA               |
+| GET         | /api/auth/send-verification/:id     | Sends verification email with token              | gKrTa            |
+| POST        | /api/auth/check-verification/:id    | Confirms/denies token and registers user         | gKrTa            |
+| POST        | /api/auth/login                     | Logs in user and send back user object w/ cookie | NA               |
+| DELETE      | /api/auth/logout                    | Logs out user                                    | srtybu           |
+| POST        | /api/auth/reset-password/start      | Starts reset password process                    | NA               |
+| POST        | /api/auth/reset-password/send-reset | Send email to user's account                     | gKrTa            |
+| POST        | /api/auth/reset-password/check      | Confirms/denies token and sets cookie user       | gKrTa            |
+| POST        | /api/auth/reset-password/complete   | Completes password update and invalidates cookie | gKrTa            |
 
 ### Endpoint examples
 
@@ -30,6 +30,8 @@ Send in request body:
 ```
 
 Response:
+
+24 hour cookie identifying the client
 
 ```json
 {
@@ -56,6 +58,14 @@ Response:
 ---
 
 #### POST `/api/auth/check-verification/:id`
+
+Send in request body:
+
+```json
+{
+  "token": "DSnNKwTqgNhv1DuPjXcqjg-GM0xlNv~jqqmhd~KWq4BkqNGJ3J5x_FzRG-UzBzKXz"
+}
+```
 
 Response:
 
@@ -94,6 +104,8 @@ User Cookie
 
 #### DELETE `/api/auth/logout`
 
+Invalidates user cookie
+
 Response:
 
 204 no content
@@ -114,7 +126,8 @@ Response:
 
 ```json
 {
-  "email": "example@gmail.com"
+  "email": "example@gmail.com",
+  "id": 6
 }
 ```
 

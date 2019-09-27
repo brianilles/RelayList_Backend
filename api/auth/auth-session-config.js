@@ -4,7 +4,7 @@ const dbConnection = require('../../data/dbConfig.js');
 
 module.exports = {
   name: 'gKrTa',
-  secret: process.env.SESSION_SECRET,
+  secret: process.env.SESSION_SECRET_Y,
   cookie: {
     maxAge: 1000 * 60 * 60, // ms: 1 hour
     SESSION_SECURE: false, // use cookie over https
@@ -17,6 +17,6 @@ module.exports = {
     tablename: 'a_sessions',
     sidfieldname: 'sid',
     createtable: true,
-    clearInterval: 1000 * 60 * 15 // delete expired sessions
+    clearInterval: 1000 * 60 * 120 // delete expired sessions
   })
 };

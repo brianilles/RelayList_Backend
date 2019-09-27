@@ -5,6 +5,8 @@ const fs = require('fs');
 const Users = require('./users-model.js');
 const Subscribers = require('./subscriber-model.js');
 
+const Feeds = require('./feeds-helper.js');
+
 const restrictedByAuthorization = require('../auth/restricted-by-authorization-middleware.js');
 const uploadImage = require('./image-uploads.js');
 
@@ -28,7 +30,7 @@ router.get('/public/:id', async (req, res) => {
   }
 });
 
-// [OWNERSHIP REQUIRED] gets user's private information
+// Gets user's private information
 router.get('/private/:id', restrictedByAuthorization, async (req, res) => {
   const { id } = req.params;
   if (!id) {
@@ -48,7 +50,7 @@ router.get('/private/:id', restrictedByAuthorization, async (req, res) => {
   }
 });
 
-// [OWNERSHIP REQUIRED] Edits a user's bio
+// Edits a user's bio
 router.put('/bio/:id', restrictedByAuthorization, async (req, res) => {
   const { id } = req.params;
   const { bio } = req.body;
@@ -73,7 +75,7 @@ router.put('/bio/:id', restrictedByAuthorization, async (req, res) => {
   }
 });
 
-// [OWNERSHIP REQUIRED] Edits a user's profile image
+// Edits a user's profile image
 router.post(
   '/profile-image/:id',
   restrictedByAuthorization,
@@ -114,7 +116,7 @@ router.post(
 // Gets a profile image
 router.use('/profile-images', express.static('profile-images')); // TODO change 404 from default
 
-// [OWNERSHIP REQUIRED] Deletes a user's profile image
+// Deletes a user's profile image
 router.delete(
   '/profile-image/:id',
   restrictedByAuthorization,
@@ -150,7 +152,7 @@ router.delete(
   }
 );
 
-// [OWNERSHIP REQUIRED] deletes a user
+// Deletes a user
 router.delete('/:id', restrictedByAuthorization, async (req, res) => {
   const { id } = req.params;
 
@@ -174,7 +176,7 @@ router.delete('/:id', restrictedByAuthorization, async (req, res) => {
   }
 });
 
-// [OWNERSHIP REQUIRED] adds a subscriber to a user
+// Adds/removes a subscriber to a user
 router.post(
   '/users/subscribe/:id/:creator_id',
   restrictedByAuthorization,
@@ -219,5 +221,45 @@ router.post(
     }
   }
 );
+
+// Gets all of a user's posts
+router.get('/posts/:id/:chunk', restrictedByAuthorization, async (req, res) => {
+  const { id, chunk } = req.params;
+
+  if (!id || !chunk) {
+    res.status(422).end();
+  } else {
+    try {
+      const user = await Users.secureFindBy({ id });
+      if (!user) {
+        res.status(500).json({ message: 'User not found.' });
+      } else {
+        const feed = await Feeds.getUserFeed(id, chunk);
+        if (feed) {
+          res.status(200).json(feed);
+        } else {
+          res
+            .status(500)
+            .json({ message: 'An error occurred when retrieving the feed.' });
+        }
+      }
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'An unknown error occurred.' });
+    }
+  }
+});
+
+// // Gets all of a user's subscribers
+// server.get(
+//   '/subscribers/:id/:chunk',
+//   restrictedByAuthorization,
+//   (req, res) => {}
+// );
+
+// // Get a user's feed
+// server.get('/main-feed/:id/:chunk');
+
+// Gets trending posts ?
 
 module.exports = router;

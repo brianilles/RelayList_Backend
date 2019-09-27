@@ -5,8 +5,10 @@ module.exports = {
   findBy,
   findPreviewBy,
   secureFindBy,
-  remove
+  remove,
+  findByChunk
 };
+
 function add(post) {
   return db('posts').insert(post);
 }
@@ -36,4 +38,11 @@ function remove(filter) {
   return db('posts')
     .where(filter)
     .del();
+}
+
+function findByChunk(filter, chunk) {
+  return db('posts')
+    .select()
+    .limit(10)
+    .offset(2 * chunk);
 }
