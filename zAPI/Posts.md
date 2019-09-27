@@ -2,13 +2,13 @@
 
 ## Endpoints
 
-| HTTP METHOD | Endpoint                         | Description                |
-| ----------- | -------------------------------- | -------------------------- |
-| POST        | /api/posts/:id                   | Adds a user's post         |
-| GET         | /api/posts/post-preview/:post_id | Gets a post's preview      |
-| GET         | /api/posts/:post_id              | Gets a post                |
-| DELETE      | /api/posts/:id/:post_id          | Deletes user's post        |
-| POST        | /api/posts/like/:id/:post_id     | Adds/deletes a user's post |
+| HTTP METHOD | Endpoint                         | Description                          | Cookies Required |
+| ----------- | -------------------------------- | ------------------------------------ | ---------------- |
+| POST        | /api/posts/:id                   | Adds a user's post                   |                  |
+| GET         | /api/posts/post-preview/:post_id | Gets a post's preview                |                  |
+| GET         | /api/posts/:post_id              | Gets a post                          |                  |
+| DELETE      | /api/posts/:id/:post_id          | Deletes user's post                  |                  |
+| POST        | /api/posts/like/:id/:post_id     | Adds/deletes a like on a user's post |                  |
 
 ### Endpoint examples
 

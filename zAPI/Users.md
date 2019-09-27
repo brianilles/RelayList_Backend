@@ -2,18 +2,18 @@
 
 ## Endpoints
 
-| HTTP METHOD | Endpoint                            | Description                    |
-| ----------- | ----------------------------------- | ------------------------------ |
-| GET         | /api/users/public/:id               | Retrieves a users public info  |
-| GET         | /api/users/private/:id              | Retrieves a users private info |
-| PUT         | /api/users/bio/:id                  | Updates bio                    |
-| DELETE      | /api/users/:id                      | Deletes a user                 |
-| POST        | /api/users/profile-image/:id        | Adds user's profile image      |
-| GET         | /api/users/profile-images/:filepath | Gets user's profile image      |
-| DELETE      | /api/users/profile-image/:id        | Deletes a user's profile image |
-| POST        | /api/subscribe/:id/:creator_id      | Adds/Removes a subscriber      |
+| HTTP METHOD | Endpoint                            | Description                    | Cookies Required |
+| ----------- | ----------------------------------- | ------------------------------ | ---------------- |
+| GET         | /api/users/public/:username         | Retrieves a users public info  | srtybu (any ui)  |
+| GET         | /api/users/private/:id              | Retrieves a users private info | srtybu           |
+| PUT         | /api/users/bio/:id                  | Updates bio                    | srtybu           |
+| POST        | /api/users/unboard/:id              | Deletes a user                 | srtybu           |
+| POST        | /api/users/profile-image/:id        | Adds user's profile image      | srtybu           |
+| GET         | /api/users/profile-images/:filepath | Gets user's profile image      | srtybu           |
+| DELETE      | /api/users/profile-image/:id        | Deletes a user's profile image | srtybu           |
+| POST        | /api/subscribe/:id/:creator_id      | Adds/Removes a subscriber      | srtybu           |
 
-#### GET `/api/users/public/:id`
+#### GET `/api/users/public/:username`
 
 Requires user cookie
 
@@ -76,7 +76,13 @@ Response:
 
 ---
 
-#### DELETE `/api/users/:id`
+#### POST `/api/users/:id`
+
+```json
+{
+  "password": "asdfa"
+}
+```
 
 Requires user cookie that owns resource
 Response:

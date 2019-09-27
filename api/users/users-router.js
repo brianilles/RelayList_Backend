@@ -1,5 +1,6 @@
 const express = require('express');
 const router = require('express').Router();
+const bcrypt = require('bcryptjs');
 const fs = require('fs');
 
 const Users = require('./users-model.js');
@@ -8,16 +9,19 @@ const Subscribers = require('./subscriber-model.js');
 const Feeds = require('./feeds-helper.js');
 
 const restrictedByAuthorization = require('../auth/restricted-by-authorization-middleware.js');
+const restrictedByAuthorizationActive = require('../auth/restricted-by-authorization-active-middleware.js');
 const uploadImage = require('./image-uploads.js');
 
+const restricted = require('../auth/restricted-middleware.js');
+
 // Gets user's public information
-router.get('/public/:id', async (req, res) => {
-  const { id } = req.params;
-  if (!id) {
+router.get('/public/:username', async (req, res) => {
+  const { username } = req.params;
+  if (!username) {
     res.status(422).end();
   } else {
     try {
-      const user = await Users.publicFindBy({ id });
+      const user = await Users.publicFindBy({ username });
       if (user) {
         res.status(200).json(user);
       } else {
@@ -78,13 +82,12 @@ router.put('/bio/:id', restrictedByAuthorization, async (req, res) => {
 // Edits a user's profile image
 router.post(
   '/profile-image/:id',
-  restrictedByAuthorization,
+  restrictedByAuthorizationActive,
   uploadImage.upload().single('profile-image'),
   async (req, res) => {
     const { id } = req.params;
     try {
       const userBefore = await Users.secureFindBy({ id });
-
       const path = userBefore.profile_image;
       const addedImage = await Users.updateImg({
         id,
@@ -114,7 +117,7 @@ router.post(
 );
 
 // Gets a profile image
-router.use('/profile-images', express.static('profile-images')); // TODO change 404 from default
+router.use('/profile-images', restricted, express.static('profile-images')); // TODO change 404 from default
 
 // Deletes a user's profile image
 router.delete(
@@ -153,28 +156,39 @@ router.delete(
 );
 
 // Deletes a user
-router.delete('/:id', restrictedByAuthorization, async (req, res) => {
+router.post('/unboard/:id', restrictedByAuthorization, async (req, res) => {
   const { id } = req.params;
+  const { password } = req.body;
 
-  try {
-    const user = await Users.secureFindBy({ id });
-    if (!user) {
-      res.status(404).end();
-    } else {
-      const deletedUser = await Users.remove({ id });
-      if (deletedUser) {
-        res.status(204).end();
+  if (!id || !password) {
+    res.status(422).end();
+  } else {
+    try {
+      const user = await Users.findBy({ id });
+      if (!user) {
+        res.status(404).end();
       } else {
-        res
-          .status(500)
-          .json({ message: 'There was an error deleting the user.' });
+        if (user && bcrypt.compareSync(password, user.password)) {
+          const deletedUser = await Users.remove({ id });
+          if (deletedUser) {
+            res.status(204).end();
+          } else {
+            res
+              .status(500)
+              .json({ message: 'There was an error deleting the user.' });
+          }
+        } else {
+          res.status(401).json({ message: 'Invalid credentials.' });
+        }
       }
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'An unknown error occurred.' });
     }
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'An unknown error occurred.' });
   }
 });
+
+// !HERE DOWN
 
 // Adds/removes a subscriber to a user
 router.post(
@@ -232,7 +246,7 @@ router.get('/posts/:id/:chunk', restrictedByAuthorization, async (req, res) => {
     try {
       const user = await Users.secureFindBy({ id });
       if (!user) {
-        res.status(500).json({ message: 'User not found.' });
+        res.status(404).end();
       } else {
         const feed = await Feeds.getUserFeed(id, chunk);
         if (feed) {

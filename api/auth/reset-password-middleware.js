@@ -1,4 +1,4 @@
-module.exports = async (req, res, next) => {
+module.exports = (req, res, next) => {
   if (req.session && req.session.zi) {
     const { id } = req.params;
     try {
