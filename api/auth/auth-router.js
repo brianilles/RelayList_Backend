@@ -392,6 +392,8 @@ router.post(
                   }
                 });
               }
+            } else {
+              res.status(405).json({ message: 'Invalid' });
             }
           } else {
             res.status(405).json({ message: 'Invalid' });

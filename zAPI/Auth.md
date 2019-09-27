@@ -167,8 +167,6 @@ Response:
 
 200
 
-Cookie
-
 ---
 
 #### POST `/api/auth/reset-password/complete`
@@ -177,6 +175,7 @@ Send in request body:
 
 ```json
 {
+  "token": "EJymdQm~NDjhmwJORTJkPdtfa0u9LfHktzK_8FYcM7b.GdqJPO3nbCe9AFfIffYKn",
   "password": "a;lsdjfasdfsdafa"
 }
 ```
