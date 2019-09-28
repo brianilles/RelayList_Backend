@@ -8,7 +8,7 @@ module.exports = {
 
 // just gets posts for now
 async function getUserFeed(id, chunk) {
-  const posts = await Posts.findByChunk(id, chunk);
+  const posts = await Posts.findByChunk({ user_id: id }, chunk);
 
   if (posts) {
     for (post of posts) {
@@ -25,9 +25,13 @@ async function getUserFeed(id, chunk) {
 
       const likes = await Likes.count({ post_id: post.id });
 
-      const creator = await Users.publicFindBy({ id: post.user_id });
+      const creator = await Users.publicTwoFindBy({ id: post.user_id });
 
       post.creator = creator;
+
+      post.content = JSON.parse(post.content);
+
+      delete post.user_id;
 
       if (likes === undefined) {
         post.likes = 0;

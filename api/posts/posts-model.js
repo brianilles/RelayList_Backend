@@ -43,6 +43,7 @@ function remove(filter) {
 function findByChunk(filter, chunk) {
   return db('posts')
     .select()
+    .where(filter)
     .limit(10)
-    .offset(2 * chunk);
+    .offset(chunk);
 }
