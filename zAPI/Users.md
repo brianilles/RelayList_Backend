@@ -4,7 +4,7 @@
 
 | HTTP METHOD | Endpoint                            | Description                    | Cookies Required |
 | ----------- | ----------------------------------- | ------------------------------ | ---------------- |
-| GET         | /api/users/public/:username         | Retrieves a users public info  | srtybu (any ui)  |
+| GET         | /api/users/public/:username         | Retrieves a users public info  | srtybu           |
 | GET         | /api/users/private/:id              | Retrieves a users private info | srtybu           |
 | PUT         | /api/users/bio/:id                  | Updates bio                    | srtybu           |
 | POST        | /api/users/unboard/:id              | Deletes a user                 | srtybu           |

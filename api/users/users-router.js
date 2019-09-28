@@ -63,14 +63,19 @@ router.put('/bio/:id', restrictedByAuthorization, async (req, res) => {
     res.status(422).end();
   } else {
     try {
-      const updatedBio = await Users.updateBio(id, bio);
-      if (updatedBio) {
-        const user = await Users.secureFindBy({ id });
-        res.status(200).json(user);
+      const user = await Users.publicFindBy({ id });
+      if (user) {
+        const updatedBio = await Users.updateBio(id, bio);
+        if (updatedBio) {
+          const user = await Users.secureFindBy({ id });
+          res.status(200).json(user);
+        } else {
+          res.status(500).json({
+            message: 'An error occurred when updating the bio.'
+          });
+        }
       } else {
-        res
-          .status(500)
-          .json({ message: 'An error occurred when updating the bio.' });
+        res.status(404).end();
       }
     } catch (error) {
       console.error(error);
