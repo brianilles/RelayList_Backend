@@ -133,7 +133,7 @@ router.delete(
     try {
       const userBefore = await Users.secureFindBy({ id });
       if (!userBefore.profile_image) {
-        res.status(405).end();
+        res.status(404).end();
       } else {
         const path = userBefore.profile_image;
         const deletedImage = await Users.updateImg({
@@ -176,6 +176,11 @@ router.post('/unboard/:id', restrictedByAuthorization, async (req, res) => {
         if (user && bcrypt.compareSync(password, user.password)) {
           const deletedUser = await Users.remove({ id });
           if (deletedUser) {
+            req.session.destroy(err => {
+              if (err) {
+                console.error(error);
+              }
+            });
             res.status(204).end();
           } else {
             res
@@ -196,12 +201,12 @@ router.post('/unboard/:id', restrictedByAuthorization, async (req, res) => {
 // !HERE DOWN
 
 // Adds/removes a subscriber to a user
-router.post(
-  '/users/subscribe/:id/:creator_id',
+router.get(
+  '/subscribe/:id/:creator_id',
   restrictedByAuthorization,
   async (req, res) => {
     const { id, creator_id } = req.params;
-    if (!id || !creator) {
+    if (!id || !creator_id) {
       res.sendStatus(422).end();
     } else {
       try {
@@ -216,7 +221,7 @@ router.post(
           });
 
           if (hasSubscribed) {
-            const removedSubscription = await PushSubscriptionOptions.remove({
+            const removedSubscription = await Subscribers.remove({
               user_id: id,
               creator_id
             });

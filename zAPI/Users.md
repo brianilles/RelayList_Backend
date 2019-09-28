@@ -77,7 +77,7 @@ Response:
 
 ---
 
-#### POST `/api/users/:id`
+#### POST `/api/users/unboard/:id`
 
 ```json
 {
