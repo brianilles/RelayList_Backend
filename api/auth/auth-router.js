@@ -336,15 +336,19 @@ router.post(
         if (!userReset) {
           res.status(404).end();
         } else {
-          if (bcrypt.compareSync(token, userReset.token)) {
-            const updatedPassed = await UsersReset.updatePass({ id });
-            if (updatedPassed) {
-              res.status(200).end();
-            } else {
-              res.status(500).json({ message: 'An error occurred.' });
-            }
+          if (userReset.has_passed) {
+            res.status(405).json({ message: 'Improper usage.' });
           } else {
-            res.status(405).json({ message: 'Invalid' });
+            if (bcrypt.compareSync(token, userReset.token)) {
+              const updatedPassed = await UsersReset.updatePass({ id });
+              if (updatedPassed) {
+                res.status(200).end();
+              } else {
+                res.status(500).json({ message: 'An error occurred.' });
+              }
+            } else {
+              res.status(405).json({ message: 'Invalid' });
+            }
           }
         }
       } catch (error) {
