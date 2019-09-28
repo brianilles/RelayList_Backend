@@ -249,7 +249,6 @@ router.get(
   }
 );
 
-// !HERE
 // Gets all of a user's posts
 router.get('/posts/:id/:chunk', restrictedByAuthorization, async (req, res) => {
   const { id, chunk } = req.params;
@@ -284,10 +283,5 @@ router.get('/posts/:id/:chunk', restrictedByAuthorization, async (req, res) => {
 //   restrictedByAuthorization,
 //   (req, res) => {}
 // );
-
-// // Get a user's feed
-// server.get('/main-feed/:id/:chunk');
-
-// Gets trending posts ?
 
 module.exports = router;

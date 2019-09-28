@@ -13,6 +13,7 @@
 | DELETE      | /api/users/profile-image/:id        | Deletes a user's profile image | srtybu           |
 | GET         | /api/users/posts/:id/:chunk         | Gets user's posts              | srtybu           |
 | POST        | /api/subscribe/:id/:creator_id      | Adds/Removes a subscriber      | srtybu           |
+| GET         | /api/users/posts/user_id/:chunk     | Gets all of a user's posts     | srtybu           |
 
 #### GET `/api/users/public/:username`
 
@@ -128,3 +129,78 @@ Response:
 Requires user cookie that owns resource
 
 200 or 204
+
+#### GET /api/users/posts/user_id/:chunk
+
+```json
+[
+  {
+    "id": 17,
+    "title": "Hello universe",
+    "description": "asdfasf",
+    "type": "news",
+    "content": [
+      {
+        "type": "p",
+        "value": "hello this is a paragraph"
+      },
+      {
+        "type": "h",
+        "value": "hello this is a heading"
+      },
+      {
+        "type": "p",
+        "value": "hello this is a paragraph"
+      },
+      {
+        "type": "h",
+        "value": "hello this is a heading"
+      }
+    ],
+    "created_at": "2019-09-28 20:36:42",
+    "hasLiked": true,
+    "creator": {
+      "full_name": "Brian Illes",
+      "username": "brisdfgdgsdfan",
+      "bio": null,
+      "profile_image": null,
+      "created_at": "2019-09-28 18:56:43"
+    },
+    "likes": 1
+  },
+  {
+    "id": 18,
+    "title": "Hello universe",
+    "description": "asdfasf",
+    "type": "news",
+    "content": [
+      {
+        "type": "p",
+        "value": "hello this is a paragraph"
+      },
+      {
+        "type": "h",
+        "value": "hello this is a heading"
+      },
+      {
+        "type": "p",
+        "value": "hello this is a paragraph"
+      },
+      {
+        "type": "h",
+        "value": "hello this is a heading"
+      }
+    ],
+    "created_at": "2019-09-28 20:36:45",
+    "hasLiked": false,
+    "creator": {
+      "full_name": "Brian Illes",
+      "username": "brisdfgdgsdfan",
+      "bio": null,
+      "profile_image": null,
+      "created_at": "2019-09-28 18:56:43"
+    },
+    "likes": 0
+  }
+]
+```

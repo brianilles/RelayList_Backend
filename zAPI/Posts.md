@@ -4,8 +4,8 @@
 
 | HTTP METHOD | Endpoint                         | Description                          | Cookies Required |
 | ----------- | -------------------------------- | ------------------------------------ | ---------------- |
-| GET         | /api/posts/post-preview/:post_id | Gets a post's preview                | NA               |
-| GET         | /api/posts/:post_id              | Gets a post                          | NA               |
+| GET         | /api/posts/post-preview/:post_id | Gets a post's preview                | srtybu           |
+| GET         | /api/posts/:post_id              | Gets a post                          | srtybu           |
 | POST        | /api/posts/:id                   | Adds a user's post                   | srtybu           |
 | DELETE      | /api/posts/:id/:post_id          | Deletes user's post                  | srtybu           |
 | POST        | /api/posts/like/:id/:post_id     | Adds/deletes a like on a user's post | srtybu           |

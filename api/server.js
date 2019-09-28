@@ -9,8 +9,8 @@ const restricted = require('./auth/restricted-middleware.js');
 const authRouter = require('./auth/auth-router.js');
 const usersRouter = require('./users/users-router.js');
 const postsRouter = require('./posts/posts-router.js');
+const feedsRouter = require('./feeds/feeds-router.js');
 
-// const feedsRouter = require('./feeds/feeds-router.js');
 // const notificationsRouter = require('./notifications/notifications-router.js');
 
 const server = express();
@@ -20,12 +20,13 @@ server.use(cors());
 
 server.use('/api/users', session(userSessionConfig));
 server.use('/api/posts', session(userSessionConfig));
+server.use('/api/feeds', session(userSessionConfig));
 
 server.use('/api/auth', authRouter);
 server.use('/api/users', restricted, usersRouter);
 server.use('/api/posts', restricted, postsRouter);
+server.use('/api/feeds', restricted, feedsRouter);
 
 // server.use('/api/notifications', notificationsRouter);
-// server.use('/api/feeds', feedsRouter);
 
 module.exports = server;
