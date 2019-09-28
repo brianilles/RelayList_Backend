@@ -198,8 +198,6 @@ router.post('/unboard/:id', restrictedByAuthorization, async (req, res) => {
   }
 });
 
-// !HERE DOWN
-
 // Adds/removes a subscriber to a user
 router.get(
   '/subscribe/:id/:creator_id',
@@ -211,8 +209,9 @@ router.get(
     } else {
       try {
         const user = await Users.secureFindBy({ id });
+        const creator = await Users.secureFindBy({ id: creator_id });
 
-        if (!user) {
+        if (!user || !creator) {
           res.status(404).end();
         } else {
           const hasSubscribed = await Subscribers.findBy({
@@ -250,6 +249,7 @@ router.get(
   }
 );
 
+// !HERE
 // Gets all of a user's posts
 router.get('/posts/:id/:chunk', restrictedByAuthorization, async (req, res) => {
   const { id, chunk } = req.params;

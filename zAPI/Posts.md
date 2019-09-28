@@ -4,11 +4,11 @@
 
 | HTTP METHOD | Endpoint                         | Description                          | Cookies Required |
 | ----------- | -------------------------------- | ------------------------------------ | ---------------- |
-| POST        | /api/posts/:id                   | Adds a user's post                   |                  |
-| GET         | /api/posts/post-preview/:post_id | Gets a post's preview                |                  |
-| GET         | /api/posts/:post_id              | Gets a post                          |                  |
-| DELETE      | /api/posts/:id/:post_id          | Deletes user's post                  |                  |
-| POST        | /api/posts/like/:id/:post_id     | Adds/deletes a like on a user's post |                  |
+| GET         | /api/posts/post-preview/:post_id | Gets a post's preview                | NA               |
+| GET         | /api/posts/:post_id              | Gets a post                          | NA               |
+| POST        | /api/posts/:id                   | Adds a user's post                   | srtybu           |
+| DELETE      | /api/posts/:id/:post_id          | Deletes user's post                  | srtybu           |
+| POST        | /api/posts/like/:id/:post_id     | Adds/deletes a like on a user's post | srtybu           |
 
 ### Endpoint examples
 
@@ -18,13 +18,31 @@ Send in request body:
 
 ```json
 {
-  "title": "Hello world",
-  "description": "a hello",
-  "type": "Blog post",
+  "id": 16,
+  "user_id": 4,
+  "title": "Hello universe",
+  "description": "asdfasf",
+  "type": "news",
   "content": [
-    { "type": "p", "value": "hello this is a 👍" },
-    { "type": "h3", "value": "hello this is an h3" }
-  ]
+    {
+      "type": "p",
+      "value": "hello this is a paragraph"
+    },
+    {
+      "type": "h",
+      "value": "hello this is a heading"
+    },
+    {
+      "type": "p",
+      "value": "hello this is a paragraph"
+    },
+    {
+      "type": "h",
+      "value": "hello this is a heading"
+    }
+  ],
+  "created_at": "2019-09-28 20:29:18",
+  "likes": 0
 }
 ```
 
@@ -60,18 +78,18 @@ Response:
 ```json
 {
   "post": {
-    "user_id": 1,
-    "title": "Hello world",
-    "description": "a hello",
-    "type": "Blog post",
-    "created_at": "2019-09-25 20:34:54"
+    "title": "Hello universe",
+    "description": "asdfasf",
+    "type": "news",
+    "created_at": "2019-09-28 19:38:17",
+    "likes": 0
   },
   "creator": {
     "full_name": "Brian Illes",
     "username": "brian",
     "bio": null,
     "profile_image": null,
-    "created_at": "2019-09-25 19:38:43"
+    "created_at": "2019-09-28 18:28:07"
   }
 }
 ```
@@ -85,29 +103,36 @@ Response:
 ```json
 {
   "post": {
-    "id": 16,
-    "user_id": 1,
-    "title": "Hello world",
-    "description": "a hello",
-    "type": "Blog post",
+    "title": "Hello universe",
+    "description": "asdfasf",
+    "type": "news",
+    "created_at": "2019-09-28 19:38:17",
+    "likes": 0,
     "content": [
       {
         "type": "p",
-        "value": "hello this is a 👍"
+        "value": "hello this is a paragraph"
       },
       {
-        "type": "h3",
-        "value": "hello this is an h3"
+        "type": "h",
+        "value": "hello this is a heading"
+      },
+      {
+        "type": "p",
+        "value": "hello this is a paragraph"
+      },
+      {
+        "type": "h",
+        "value": "hello this is a heading"
       }
-    ],
-    "created_at": "2019-09-25 20:40:47"
+    ]
   },
   "creator": {
     "full_name": "Brian Illes",
     "username": "brian",
     "bio": null,
     "profile_image": null,
-    "created_at": "2019-09-25 19:38:43"
+    "created_at": "2019-09-28 18:28:07"
   }
 }
 ```

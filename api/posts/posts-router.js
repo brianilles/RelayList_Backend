@@ -27,7 +27,6 @@ router.get('/:post_id', async (req, res) => {
 
         // likes
         const postLikes = await Likes.count({ post_id });
-        console.log(postLikes);
         if (postLikes === undefined) {
           securePost.likes = 0;
         } else {
@@ -157,22 +156,28 @@ router.post('/:id', restrictedByAuthorization, async (req, res) => {
 });
 
 router.delete('/:id/:post_id', restrictedByAuthorization, async (req, res) => {
-  const { post_id } = req.params;
+  const { id, post_id } = req.params;
   if (!post_id) {
     res.status(422).end();
   } else {
     try {
-      const post = await Posts.secureFindBy({ id: post_id });
+      const post = await Posts.findBy({ id: post_id });
+
       if (!post) {
         res.status(404).end();
       } else {
-        const deletedPost = await Posts.remove({ id: post.id });
-        if (deletedPost) {
-          res.status(204).end();
+        // check for ownership
+        if (post.user_id == id) {
+          const deletedPost = await Posts.remove({ id: post.id });
+          if (deletedPost) {
+            res.status(204).end();
+          } else {
+            res
+              .status(500)
+              .json({ message: 'There was an error deleting the post.' });
+          }
         } else {
-          res
-            .status(500)
-            .json({ message: 'There was an error deleting the post.' });
+          res.status(405).json({ message: 'Invalid permissions.' });
         }
       }
     } catch (error) {
