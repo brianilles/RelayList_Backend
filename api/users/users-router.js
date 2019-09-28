@@ -217,6 +217,8 @@ router.post(
             });
             if (removedSubscription) {
               res.status(204).end();
+            } else {
+              res.status(500).json({ message: 'An unknown error occurred.' });
             }
           } else {
             const addedSubscriptions = await Subscribers.add({
@@ -225,6 +227,8 @@ router.post(
             });
             if (addedSubscriptions) {
               res.status(201).json({ message: 'Subscription added.' });
+            } else {
+              res.status(500).json({ message: 'An unknown error occurred.' });
             }
           }
         }

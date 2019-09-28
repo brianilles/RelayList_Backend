@@ -26,7 +26,8 @@ router.get('/:post_id', async (req, res) => {
         };
 
         // likes
-        const postLikes = await Likes.count({ id: post_id });
+        const postLikes = await Likes.count({ post_id });
+        console.log(postLikes);
         if (postLikes === undefined) {
           securePost.likes = 0;
         } else {
@@ -72,7 +73,7 @@ router.get('/post-preview/:post_id', async (req, res) => {
         };
 
         // likes
-        const postLikes = await Likes.count({ id: post_id });
+        const postLikes = await Likes.count({ post_id });
         if (postLikes === undefined) {
           securePost.likes = 0;
         } else {
