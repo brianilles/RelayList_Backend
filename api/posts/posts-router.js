@@ -24,6 +24,15 @@ router.get('/:post_id', async (req, res) => {
           type: post.type,
           created_at: post.created_at
         };
+
+        // likes
+        const postLikes = await Likes.count({ id: post_id });
+        if (postLikes === undefined) {
+          securePost.likes = 0;
+        } else {
+          securePost.likes = postLikes.length;
+        }
+
         const creator = await Users.publicTwoFindBy({
           id: post.user_id
         });
@@ -47,7 +56,6 @@ router.get('/:post_id', async (req, res) => {
 
 router.get('/post-preview/:post_id', async (req, res) => {
   const { post_id } = req.params;
-
   try {
     if (!post_id) {
       res.status(422).end();
@@ -62,9 +70,20 @@ router.get('/post-preview/:post_id', async (req, res) => {
           type: post.type,
           created_at: post.created_at
         };
+
+        // likes
+        const postLikes = await Likes.count({ id: post_id });
+        if (postLikes === undefined) {
+          securePost.likes = 0;
+        } else {
+          securePost.likes = postLikes.length;
+        }
+
+        // add creator
         const creator = await Users.publicTwoFindBy({
           id: post.user_id
         });
+
         if (!creator) {
           res.status(404).end();
         } else {
@@ -108,8 +127,18 @@ router.post('/:id', restrictedByAuthorization, async (req, res) => {
             type,
             content: jsonContent
           });
+
           if (addedPost) {
             const post = await Posts.findBy({ id: addedPost });
+
+            // likes
+            const postLikes = await Likes.count({ id: post.id });
+            if (postLikes === undefined) {
+              post.likes = 0;
+            } else {
+              post.likes = postLikes.length;
+            }
+
             post.content = JSON.parse(post.content);
             res.status(201).json(post);
           } else {
