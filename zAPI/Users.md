@@ -11,6 +11,7 @@
 | POST        | /api/users/profile-image/:id        | Adds user's profile image      | srtybu           |
 | GET         | /api/users/profile-images/:filepath | Gets user's profile image      | srtybu           |
 | DELETE      | /api/users/profile-image/:id        | Deletes a user's profile image | srtybu           |
+| GET         | /api/users/posts/:id/:chunk         | Gets user's posts              | srtybu           |
 | POST        | /api/subscribe/:id/:creator_id      | Adds/Removes a subscriber      | srtybu           |
 
 #### GET `/api/users/public/:username`
