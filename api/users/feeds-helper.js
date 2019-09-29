@@ -27,10 +27,6 @@ async function getUserFeed(id, chunk) {
 
       const creator = await Users.publicTwoFindBy({ id: post.user_id });
 
-      post.creator = creator;
-
-      post.content = JSON.parse(post.content);
-
       delete post.user_id;
 
       if (likes === undefined) {
@@ -38,6 +34,8 @@ async function getUserFeed(id, chunk) {
       } else {
         post.likes = likes.length;
       }
+
+      post.creator = creator;
     }
   }
   return posts;

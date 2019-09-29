@@ -135,72 +135,21 @@ Requires user cookie that owns resource
 ```json
 [
   {
-    "id": 17,
+    "id": 12,
     "title": "Hello universe",
     "description": "asdfasf",
     "type": "news",
-    "content": [
-      {
-        "type": "p",
-        "value": "hello this is a paragraph"
-      },
-      {
-        "type": "h",
-        "value": "hello this is a heading"
-      },
-      {
-        "type": "p",
-        "value": "hello this is a paragraph"
-      },
-      {
-        "type": "h",
-        "value": "hello this is a heading"
-      }
-    ],
-    "created_at": "2019-09-28 20:36:42",
-    "hasLiked": true,
-    "creator": {
-      "full_name": "Brian Illes",
-      "username": "brisdfgdgsdfan",
-      "bio": null,
-      "profile_image": null,
-      "created_at": "2019-09-28 18:56:43"
-    },
-    "likes": 1
-  },
-  {
-    "id": 18,
-    "title": "Hello universe",
-    "description": "asdfasf",
-    "type": "news",
-    "content": [
-      {
-        "type": "p",
-        "value": "hello this is a paragraph"
-      },
-      {
-        "type": "h",
-        "value": "hello this is a heading"
-      },
-      {
-        "type": "p",
-        "value": "hello this is a paragraph"
-      },
-      {
-        "type": "h",
-        "value": "hello this is a heading"
-      }
-    ],
-    "created_at": "2019-09-28 20:36:45",
+    "created_at": "2019-09-28 20:19:35",
     "hasLiked": false,
+    "likes": 0,
     "creator": {
       "full_name": "Brian Illes",
-      "username": "brisdfgdgsdfan",
+      "username": "brian",
       "bio": null,
       "profile_image": null,
-      "created_at": "2019-09-28 18:56:43"
-    },
-    "likes": 0
-  }
+      "created_at": "2019-09-28 18:28:07"
+    }
+  },
+  ...
 ]
 ```

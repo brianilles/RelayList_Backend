@@ -2,35 +2,36 @@
 
 ## Endpoints
 
-| HTTP METHOD | Endpoint               | Description            | Cookies Required |
-| ----------- | ---------------------- | ---------------------- | ---------------- |
-| GET         | /api/feeds/main/:chunk | Gets generic post feed | srtybu           |
+| HTTP METHOD | Endpoint                   | Description            | Cookies Required |
+| ----------- | -------------------------- | ---------------------- | ---------------- |
+| GET         | /api/feeds/main/:id/:chunk | Gets generic post feed | srtybu           |
 
 ### Endpoint examples
 
-#### GET `/api/feeds/main`
+#### GET `/api/feeds/main/:id/:chunk`
 
 Response:
 
 ```json
-{
-  "id": 11,
-  "user_id": 1,
-  "title": "Hello world",
-  "description": "a hello",
-  "type": "Blog post",
-  "content": [
-    {
-      "type": "p",
-      "value": "hello this is a 👍"
-    },
-    {
-      "type": "h3",
-      "value": "hello this is an h3"
+[
+  {
+    "id": 12,
+    "title": "Hello universe",
+    "description": "asdfasf",
+    "type": "news",
+    "created_at": "2019-09-28 20:19:35",
+    "hasLiked": false,
+    "likes": 0,
+    "creator": {
+      "full_name": "Brian Illes",
+      "username": "brian",
+      "bio": null,
+      "profile_image": null,
+      "created_at": "2019-09-28 18:28:07"
     }
-  ],
-  "created_at": "2019-09-25 20:27:28"
-}
+  },
+  ...
+]
 ```
 
 ---
