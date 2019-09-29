@@ -2,18 +2,19 @@
 
 ## Endpoints
 
-| HTTP METHOD | Endpoint                            | Description                    | Cookies Required |
-| ----------- | ----------------------------------- | ------------------------------ | ---------------- |
-| GET         | /api/users/public/:username         | Retrieves a users public info  | srtybu           |
-| GET         | /api/users/private/:id              | Retrieves a users private info | srtybu           |
-| PUT         | /api/users/bio/:id                  | Updates bio                    | srtybu           |
-| POST        | /api/users/unboard/:id              | Deletes a user                 | srtybu           |
-| POST        | /api/users/profile-image/:id        | Adds user's profile image      | srtybu           |
-| GET         | /api/users/profile-images/:filepath | Gets user's profile image      | srtybu           |
-| DELETE      | /api/users/profile-image/:id        | Deletes a user's profile image | srtybu           |
-| GET         | /api/users/posts/:id/:chunk         | Gets user's posts              | srtybu           |
-| POST        | /api/subscribe/:id/:creator_id      | Adds/Removes a subscriber      | srtybu           |
-| GET         | /api/users/posts/user_id/:chunk     | Gets all of a user's posts     | srtybu           |
+| HTTP METHOD | Endpoint                                 | Description                        | Cookies Required |
+| ----------- | ---------------------------------------- | ---------------------------------- | ---------------- |
+| GET         | /api/users/public/:username              | Retrieves a users public info      | srtybu           |
+| GET         | /api/users/private/:id                   | Retrieves a users private info     | srtybu           |
+| PUT         | /api/users/bio/:id                       | Updates bio                        | srtybu           |
+| POST        | /api/users/unboard/:id                   | Deletes a user                     | srtybu           |
+| POST        | /api/users/profile-image/:id             | Adds user's profile image          | srtybu           |
+| GET         | /api/users/profile-images/:filepath      | Gets user's profile image          | srtybu           |
+| DELETE      | /api/users/profile-image/:id             | Deletes a user's profile image     | srtybu           |
+| GET         | /api/users/posts/:id/:chunk              | Gets user's posts                  | srtybu           |
+| POST        | /api/subscribe/:id/:creator_id           | Adds/Removes a subscriber          | srtybu           |
+| GET         | /api/users/posts/:user_id/:chunk         | Gets all of a user's posts         | srtybu           |
+| GET         | /api/users/subscriptions/:user_id/:chunk | Gets all of a user's subscriptions | srtybu           |
 
 #### GET `/api/users/public/:username`
 
@@ -151,5 +152,20 @@ Requires user cookie that owns resource
     }
   },
   ...
+]
+```
+
+#### GET /api/users/subscriptions/:user_id/:chunk
+
+```json
+[
+  {
+    "id": 2,
+    "full_name": "Brian Illes",
+    "username": "bridan",
+    "bio": null,
+    "profile_image": null,
+    "created_at": "2019-09-29 17:22:59"
+  }
 ]
 ```

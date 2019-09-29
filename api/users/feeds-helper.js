@@ -5,7 +5,7 @@ const Subscriptions = require('./subscriber-model.js');
 
 module.exports = {
   getUserFeed,
-  getSubscriberFeed
+  getSubscriptionsFeed
 };
 
 // just gets posts for now
@@ -44,7 +44,16 @@ async function getUserFeed(id, chunk) {
 }
 
 // get a user's subscriptions
-async function getSubscriberFeed(id, chunk) {
-  const Subscriptions = await Subscriptions.findBy({ id });
-  console.log(Subscriptions);
+async function getSubscriptionsFeed(id, chunk) {
+  const subscriptions = [];
+  const subs = await Subscriptions.findByChunk({ user_id: id }, chunk);
+
+  if (subs) {
+    for (sub of subs) {
+      const user = await Users.publicFindBy({ id: sub.creator_id });
+      subscriptions.push(user);
+    }
+  }
+
+  return subscriptions;
 }

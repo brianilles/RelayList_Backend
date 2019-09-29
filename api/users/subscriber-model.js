@@ -3,8 +3,10 @@ const db = require('../../data/dbConfig.js');
 module.exports = {
   add,
   findBy,
+  findAllBy,
   remove,
-  count
+  count,
+  findByChunk
 };
 
 function add(like) {
@@ -22,8 +24,22 @@ function findBy(filter) {
     .first();
 }
 
+function findAllBy(filter) {
+  return db('subscribers')
+    .select()
+    .where(filter);
+}
+
 function remove(filter) {
   return db('subscribers')
     .where(filter)
     .del();
+}
+
+function findByChunk(filter, chunk) {
+  return db('subscribers')
+    .select()
+    .where(filter)
+    .limit(10)
+    .offset(chunk * 10);
 }

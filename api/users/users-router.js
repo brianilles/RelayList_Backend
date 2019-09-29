@@ -278,8 +278,8 @@ router.get('/posts/:id/:chunk', restrictedByAuthorization, async (req, res) => {
 });
 
 // Gets all of a user's subscriptions
-server.get(
-  '/subscribers/:id/:chunk',
+router.get(
+  '/subscriptions/:id/:chunk',
   restrictedByAuthorization,
   async (req, res) => {
     const { id, chunk } = req.params;
@@ -291,7 +291,7 @@ server.get(
         if (!user) {
           res.status(404).end();
         } else {
-          const subscriberFeed = await Feeds.getSubscriberFeed(id, chunk);
+          const subscriberFeed = await Feeds.getSubscriptionsFeed(id, chunk);
           if (subscriberFeed) {
             res.status(200).json(subscriberFeed);
           } else {
