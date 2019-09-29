@@ -277,11 +277,35 @@ router.get('/posts/:id/:chunk', restrictedByAuthorization, async (req, res) => {
   }
 });
 
-// // Gets all of a user's subscribers
-// server.get(
-//   '/subscribers/:id/:chunk',
-//   restrictedByAuthorization,
-//   (req, res) => {}
-// );
+// Gets all of a user's subscriptions
+server.get(
+  '/subscribers/:id/:chunk',
+  restrictedByAuthorization,
+  async (req, res) => {
+    const { id, chunk } = req.params;
+    if (!id || !chunk) {
+      res.status(422).end();
+    } else {
+      try {
+        const user = Users.secureFindBy({ id });
+        if (!user) {
+          res.status(404).end();
+        } else {
+          const subscriberFeed = await Feeds.getSubscriberFeed(id, chunk);
+          if (subscriberFeed) {
+            res.status(200).json(subscriberFeed);
+          } else {
+            res.status(500).json({
+              message: 'An error occurres when retrieving the subscriber feed.'
+            });
+          }
+        }
+      } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'An unknown error occurred.' });
+      }
+    }
+  }
+);
 
 module.exports = router;

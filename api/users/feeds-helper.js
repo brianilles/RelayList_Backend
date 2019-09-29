@@ -1,9 +1,11 @@
 const Users = require('../users/users-model.js');
 const Posts = require('../posts/posts-model.js');
 const Likes = require('../posts/likes-model.js');
+const Subscriptions = require('./subscriber-model.js');
 
 module.exports = {
-  getUserFeed
+  getUserFeed,
+  getSubscriberFeed
 };
 
 // just gets posts for now
@@ -39,4 +41,10 @@ async function getUserFeed(id, chunk) {
     }
   }
   return posts;
+}
+
+// get a user's subscriptions
+async function getSubscriberFeed(id, chunk) {
+  const Subscriptions = await Subscriptions.findBy({ id });
+  console.log(Subscriptions);
 }
