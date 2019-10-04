@@ -101,8 +101,8 @@ router.get('/post-preview/:post_id', async (req, res) => {
   }
 });
 
-router.post('/:id', restrictedByAuthorization, async (req, res) => {
-  const user_id = req.params.id;
+router.post('/', restrictedByAuthorization, async (req, res) => {
+  const user_id = req.session.ui;
   const { title, description, type, content } = req.body;
 
   if (!user_id || !title || !description || !type || !content) {

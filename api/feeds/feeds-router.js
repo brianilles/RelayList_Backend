@@ -4,8 +4,9 @@ const Feeds = require('./feeds-model.js');
 const restrictedByAuthorization = require('../auth/restricted-by-authorization-middleware.js');
 
 // Gets main generic feed
-router.get('/main/:id/:chunk', restrictedByAuthorization, async (req, res) => {
-  const { id, chunk } = req.params;
+router.get('/main/:chunk', restrictedByAuthorization, async (req, res) => {
+  const { chunk } = req.params;
+  const id = req.session.ui;
 
   if (!id || !chunk) {
     res.status(422).end();
