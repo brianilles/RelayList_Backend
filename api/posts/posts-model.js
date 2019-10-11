@@ -52,6 +52,7 @@ function findByChunk(filter, chunk) {
 function findByChunkOnly(chunk) {
   return db('posts')
     .select('id', 'user_id', 'title', 'description', 'type', 'created_at')
+    .orderBy('created_at', 'desc')
     .limit(10)
     .offset(chunk * 10);
 }
