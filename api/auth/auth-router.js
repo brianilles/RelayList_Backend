@@ -68,76 +68,69 @@ router.post('/register', session(authSessionConfig), async (req, res) => {
 
 // Sends an email to verify user
 router.get(
-  '/send-verification/:id',
+  '/send-verification',
   session(authSessionConfig),
   verificationRestricted,
   async (req, res) => {
-    let { id } = req.params;
+    const id = req.session.vi;
+    try {
+      const unverifiedUser = await UnverifiedUsers.secureFindBy({ id });
 
-    if (!id) {
-      res.status(422).end();
-    } else {
-      try {
-        const unverifiedUser = await UnverifiedUsers.secureFindBy({ id });
+      if (!unverifiedUser) {
+        res.status(404).end();
+      } else {
+        const tokenBefore = cryptoRandomString({
+          length: 65,
+          type: 'url-safe'
+        });
+        // const tokenHash = bcrypt.hashSync(tokenBefore, 12);
+        const tokenAdded = await UnverifiedUsers.updateToken({
+          id,
+          token: tokenBefore
+        });
 
-        if (!unverifiedUser) {
-          res.status(404).end();
-        } else {
-          const tokenBefore = cryptoRandomString({
-            length: 65,
-            type: 'url-safe'
+        if (tokenAdded) {
+          const updatedUser = await UnverifiedUsers.findTokenEmailBy({
+            id
           });
-          const tokenHash = bcrypt.hashSync(tokenBefore, 12);
-          const tokenAdded = await UnverifiedUsers.updateToken({
-            id,
-            token: tokenHash
-          });
-
-          if (tokenAdded) {
-            const updatedUser = await UnverifiedUsers.findTokenEmailBy({
-              id
-            });
-            const emailStatus = await EmailVerification.sendVerificationEmail(
-              updatedUser.email,
-              tokenBefore
-            );
-            if (emailStatus) {
-              res.status(200).json({ message: 'Email sent' });
-            } else {
-              res.status(500).json({ message: 'Email could not be sent.' });
-            }
+          const emailStatus = await EmailVerification.sendVerificationEmail(
+            updatedUser.email,
+            tokenBefore
+          );
+          if (emailStatus) {
+            res.status(200).json({ message: 'Email sent' });
           } else {
-            res.status(500).json({ message: 'An error occurred.' });
+            res.status(500).json({ message: 'Email could not be sent.' });
           }
+        } else {
+          res.status(500).json({ message: 'An error occurred.' });
         }
-      } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'An unknown error occurred.' });
       }
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'An unknown error occurred.' });
     }
   }
 );
 
 // Confirms or denies verification for the user
 router.post(
-  '/check-verification/:id',
-  session(authSessionConfig),
-  verificationRestricted,
+  '/check-verification',
+  session(userSessionConfig),
   async (req, res) => {
-    let { id } = req.params;
     const { token } = req.body;
 
-    if (!token || !id) {
+    if (!token) {
       res.status(422).end();
     } else {
       try {
-        const unverifiedUser = await UnverifiedUsers.findBy({ id });
+        const unverifiedUser = await UnverifiedUsers.findBy({ token });
 
         if (!unverifiedUser) {
           res.status(404).end();
         } else {
-          if (bcrypt.compareSync(token, unverifiedUser.token)) {
-            const addedUser = await Users.add({
+          if (token === unverifiedUser.token) {
+            const [addedUser] = await Users.add({
               email: unverifiedUser.email,
               full_name: unverifiedUser.full_name,
               username: unverifiedUser.username,
@@ -145,8 +138,19 @@ router.post(
             });
 
             if (addedUser) {
-              await UnverifiedUsers.remove({ id });
-              res.status(201).json();
+              await UnverifiedUsers.remove({ token });
+              const user = await Users.findBy({ id: addedUser });
+              const foundUser = {
+                id: user.id,
+                email: user.email,
+                full_name: user.full_name,
+                username: user.username,
+                bio: user.bio,
+                profile_image: user.profile_image,
+                created_at: user.created_at
+              };
+              req.session.ui = user.id;
+              res.status(201).json(foundUser);
             } else {
               res.status(500).json({ message: 'User could not be added.' });
             }
@@ -175,17 +179,8 @@ router.post('/login', session(userSessionConfig), async (req, res) => {
         res.status(404).json({ message: 'User not found.' });
       } else {
         if (user && bcrypt.compareSync(password, user.password)) {
-          const foundUser = {
-            id: user.id,
-            email: user.email,
-            full_name: user.full_name,
-            username: user.username,
-            bio: user.bio,
-            profile_image: user.profile_image,
-            created_at: user.created_at
-          };
           req.session.ui = user.id;
-          res.status(200).json(foundUser);
+          res.status(200).end();
         } else {
           res.status(401).json({ message: 'Invalid credentials.' });
         }
@@ -200,8 +195,8 @@ router.post('/login', session(userSessionConfig), async (req, res) => {
 });
 
 // Logs out user
-router.delete(
-  '/logout/:id',
+router.post(
+  '/logout',
   session(userSessionConfig),
   restrictedByAuth,
   (req, res) => {
@@ -210,7 +205,7 @@ router.delete(
         if (err) {
           res.status(500).json({ message: 'Could not logged out' });
         } else {
-          res.status(204).json({ message: 'Logout success' });
+          res.status(200).json({ message: 'Logout success' });
         }
       });
     } else {
@@ -269,7 +264,7 @@ router.post(
 
 // Sends an email to verify reset
 router.post(
-  '/reset-password/send-reset/:id',
+  '/reset-password/send-reset',
   session(authSessionConfig),
   resetPasswordMiddleware,
   async (req, res) => {
@@ -292,10 +287,10 @@ router.post(
               length: 65,
               type: 'url-safe'
             });
-            const tokenHash = bcrypt.hashSync(tokenBefore, 12);
+            // const tokenHash = bcrypt.hashSync(tokenBefore, 12);
             const tokenAdded = await UsersReset.updateToken({
               id: userReset.id,
-              token: tokenHash
+              token: tokenBefore
             });
             if (tokenAdded) {
               const emailStatus = await EmailVerification.sendVerificationEmail(
@@ -322,25 +317,26 @@ router.post(
 
 // Confirms or denies password reset verification for the user
 router.post(
-  '/reset-password/check/:id',
+  '/reset-password/check',
   session(authSessionConfig),
   resetPasswordMiddleware,
   async (req, res) => {
-    const { id } = req.params;
     const { token } = req.body;
     if (!token) {
       res.status(422).end();
     } else {
       try {
-        const userReset = await UsersReset.findBy({ id });
+        const userReset = await UsersReset.findBy({ token });
         if (!userReset) {
           res.status(404).end();
         } else {
           if (userReset.has_passed) {
             res.status(405).json({ message: 'Improper usage.' });
           } else {
-            if (bcrypt.compareSync(token, userReset.token)) {
-              const updatedPassed = await UsersReset.updatePass({ id });
+            if (token === userReset.token) {
+              const updatedPassed = await UsersReset.updatePass({
+                id: userReset.id
+              });
               if (updatedPassed) {
                 res.status(200).end();
               } else {
@@ -361,21 +357,20 @@ router.post(
 
 // Resets password
 router.post(
-  '/reset-password/complete/:id',
+  '/reset-password/complete',
   session(authSessionConfig),
   resetPasswordMiddleware,
   async (req, res) => {
-    const { id } = req.params;
     const { token, password } = req.body;
     if (!token || !password) {
       res.status(422).end();
     } else {
       try {
-        const userReset = await UsersReset.findBy({ id });
+        const userReset = await UsersReset.findBy({ token });
         if (!userReset) {
           res.status(404).end();
         } else {
-          if (bcrypt.compareSync(token, userReset.token)) {
+          if (token === userReset.token) {
             if (userReset.has_passed) {
               const hashedPassword = bcrypt.hashSync(password, 12);
               const updatedUser = await Users.updatePassword({

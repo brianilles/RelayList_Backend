@@ -2,15 +2,11 @@ const Users = require('../users/users-model.js');
 
 module.exports = async (req, res, next) => {
   if (req.session && req.session.ui) {
-    const { id } = req.params;
+    const id = req.session.ui;
     try {
-      if (id == req.session.ui) {
-        const user = await Users.publicFindBy({ id });
-        if (user) {
-          next();
-        } else {
-          res.status(401).json({ message: 'Invalid credentials' });
-        }
+      const user = await Users.publicFindBy({ id });
+      if (user) {
+        next();
       } else {
         res.status(401).json({ message: 'Invalid credentials' });
       }

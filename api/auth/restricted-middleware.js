@@ -2,6 +2,6 @@ module.exports = (req, res, next) => {
   if (req.session && req.session.ui) {
     next();
   } else {
-    res.status(401).json({ message: 'Invalid credential configuration.' });
+    res.status(200).json({ message: 'Inactive' });
   }
 };

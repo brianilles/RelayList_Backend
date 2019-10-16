@@ -10,7 +10,7 @@ async function sendVerificationEmail(to, token) {
     to,
     from: 'no-reply@relaylist.com',
     subject: 'Verify your email',
-    html: `<p>${token}</p>`
+    html: `<p><a>http://localhost:3000/verify-check?${token}</a></p>`
   };
   try {
     const sent = await sgMail.send(msg);

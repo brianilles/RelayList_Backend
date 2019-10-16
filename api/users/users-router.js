@@ -35,8 +35,8 @@ router.get('/public/:username', async (req, res) => {
 });
 
 // Gets user's private information
-router.get('/private/:id', restrictedByAuthorization, async (req, res) => {
-  const { id } = req.params;
+router.get('/private', restrictedByAuthorization, async (req, res) => {
+  const id = req.session.ui;
   if (!id) {
     res.status(422).end();
   } else {
@@ -55,8 +55,8 @@ router.get('/private/:id', restrictedByAuthorization, async (req, res) => {
 });
 
 // Edits a user's bio
-router.put('/bio/:id', restrictedByAuthorization, async (req, res) => {
-  const { id } = req.params;
+router.put('/bio', restrictedByAuthorization, async (req, res) => {
+  const id = req.session.ui;
   const { bio } = req.body;
 
   if (!bio) {
@@ -86,11 +86,11 @@ router.put('/bio/:id', restrictedByAuthorization, async (req, res) => {
 
 // Edits a user's profile image
 router.post(
-  '/profile-image/:id',
+  '/profile-image',
   restrictedByAuthorizationActive,
   uploadImage.upload().single('profile-image'),
   async (req, res) => {
-    const { id } = req.params;
+    const id = req.session.ui;
     try {
       const userBefore = await Users.secureFindBy({ id });
       const path = userBefore.profile_image;
@@ -125,44 +125,40 @@ router.post(
 router.use('/profile-images', restricted, express.static('profile-images')); // TODO change 404 from default
 
 // Deletes a user's profile image
-router.delete(
-  '/profile-image/:id',
-  restrictedByAuthorization,
-  async (req, res) => {
-    const { id } = req.params;
-    try {
-      const userBefore = await Users.secureFindBy({ id });
-      if (!userBefore.profile_image) {
-        res.status(404).end();
-      } else {
-        const path = userBefore.profile_image;
-        const deletedImage = await Users.updateImg({
-          id,
-          profile_image: null
-        });
-        fs.unlink(path, error => {
-          if (error) {
-            console.error(error);
-          }
-        });
-        if (deletedImage) {
-          res.status(204).end();
-        } else {
-          res
-            .status(500)
-            .json({ message: 'An error occurred when deleting the image.' });
+router.delete('/profile-image', restrictedByAuthorization, async (req, res) => {
+  const id = req.session.ui;
+  try {
+    const userBefore = await Users.secureFindBy({ id });
+    if (!userBefore.profile_image) {
+      res.status(404).end();
+    } else {
+      const path = userBefore.profile_image;
+      const deletedImage = await Users.updateImg({
+        id,
+        profile_image: null
+      });
+      fs.unlink(path, error => {
+        if (error) {
+          console.error(error);
         }
+      });
+      if (deletedImage) {
+        res.status(204).end();
+      } else {
+        res
+          .status(500)
+          .json({ message: 'An error occurred when deleting the image.' });
       }
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: 'An unknown error occurred.' });
     }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'An unknown error occurred.' });
   }
-);
+});
 
 // Deletes a user
-router.post('/unboard/:id', restrictedByAuthorization, async (req, res) => {
-  const { id } = req.params;
+router.post('/unboard', restrictedByAuthorization, async (req, res) => {
+  const id = req.session.ui;
   const { password } = req.body;
 
   if (!id || !password) {
@@ -250,8 +246,9 @@ router.get(
 );
 
 // Gets all of a user's posts
-router.get('/posts/:id/:chunk', restrictedByAuthorization, async (req, res) => {
-  const { id, chunk } = req.params;
+router.get('/posts/:chunk', restrictedByAuthorization, async (req, res) => {
+  const { chunk } = req.params;
+  const id = req.session.ui;
 
   if (!id || !chunk) {
     res.status(422).end();

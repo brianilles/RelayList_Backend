@@ -16,7 +16,8 @@ const feedsRouter = require('./feeds/feeds-router.js');
 const server = express();
 server.use(helmet());
 server.use(express.json());
-server.use(cors());
+// server.use(cors());
+server.use(cors({ origin: true, credentials: true }));
 
 server.use('/api/users', session(userSessionConfig));
 server.use('/api/posts', session(userSessionConfig));
